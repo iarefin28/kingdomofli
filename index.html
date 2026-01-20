@@ -25,7 +25,8 @@
         margin: 0;
         font-family: "Georgia", "Times New Roman", serif;
         color: var(--ink);
-        background: linear-gradient(180deg, var(--blue) 0%, var(--pink) 48%, var(--gold) 100%);
+        background: radial-gradient(circle at top, var(--gold), transparent 55%),
+          linear-gradient(90deg, #0a1736 0%, #0a1736 45%, #b40e1a 100%);
         background-size: 200% 200%;
         animation: drift 18s ease-in-out infinite;
         display: grid;
@@ -49,19 +50,23 @@
         backdrop-filter: blur(8px);
       }
 
+      body.revealed {
+        background: linear-gradient(135deg, #f7b0d8, #f79cc9, #f3a0c4);
+      }
+
       h1 {
         margin: 0 0 18px;
         font-size: clamp(22px, 4vw, 30px);
         letter-spacing: 0.5px;
       }
 
-      .password {
+      .credentials {
         display: grid;
         gap: 8px;
         margin: 14px 0 22px;
       }
 
-      .password input {
+      .credentials input {
         padding: 10px 12px;
         border-radius: 10px;
         border: 1px solid rgba(0, 0, 0, 0.2);
@@ -69,24 +74,26 @@
         font-size: 14px;
       }
 
-      .password small {
+      .credentials small {
         color: rgba(0, 0, 0, 0.7);
         font-size: 12px;
       }
 
-      .story {
+      .instructions {
         background: rgba(255, 255, 255, 0.6);
         border-radius: 16px;
         padding: 18px 16px;
+        display: none;
       }
 
-      .story-text {
-        min-height: 64px;
-        font-size: 16px;
-        margin: 0 0 14px;
+      .instructions ol {
+        text-align: left;
+        padding-left: 20px;
+        margin: 0;
+        font-size: 15px;
       }
 
-      .reveal {
+      .enter {
         border: none;
         background: var(--blue);
         color: white;
@@ -97,11 +104,11 @@
         transition: transform 150ms ease, box-shadow 150ms ease;
       }
 
-      .reveal:active {
+      .enter:active {
         transform: scale(0.98);
       }
 
-      .reveal:focus-visible {
+      .enter:focus-visible {
         outline: 2px solid rgba(0, 0, 0, 0.6);
         outline-offset: 2px;
       }
@@ -121,41 +128,55 @@
   </head>
   <body>
     <main>
-      <h1>Save this link somewhere, the last link is useless.</h1>
+      <h1>Welcome back</h1>
 
-      <div class="password">
-        <input type="password" value="moonlit-rose" disabled aria-disabled="true">
-        <small>Password is disabled for now.</small>
+      <div class="credentials">
+        <input id="username" type="text" placeholder="Username" autocomplete="off">
+        <input id="password" type="password" placeholder="Password" autocomplete="off">
+        <small id="hint">Enter username and password.</small>
       </div>
 
-      <div class="story">
-        <p id="storyText" class="story-text">Tap to begin.</p>
-        <button id="revealButton" class="reveal" type="button">Reveal next piece</button>
+      <button id="enterButton" class="enter" type="button">Enter</button>
+
+      <div class="instructions" id="instructions">
+        <ol>
+          <li>Save this link somewhere, last link gonna be useless soon.</li>
+          <li>On 24-Jan-2025 remove the roses and throw them out.</li>
+        </ol>
       </div>
 
       <div class="notice">Screenshots cannot be blocked on iPhone, but selection and long-press are disabled.</div>
     </main>
 
     <script>
-      const pieces = [
-        "The kingdom wakes under a gold-blue sky.",
-        "A quiet bell rings once, then never again.",
-        "She hides a map inside a song, one note per breath.",
-        "He follows the river until it speaks in pink light.",
-        "The last door opens only when you stop looking for it."
-      ];
+      const usernameInput = document.getElementById("username");
+      const passwordInput = document.getElementById("password");
+      const enterButton = document.getElementById("enterButton");
+      const instructions = document.getElementById("instructions");
+      const hint = document.getElementById("hint");
 
-      let index = 0;
-      const storyText = document.getElementById("storyText");
-      const revealButton = document.getElementById("revealButton");
+      function checkCredentials() {
+        const username = usernameInput.value.trim();
+        const password = passwordInput.value.trim();
 
-      function revealNext() {
-        storyText.textContent = pieces[index];
-        index = (index + 1) % pieces.length;
-        revealButton.textContent = index === 0 ? "Start again" : "Reveal next piece";
+        if (username === "kingdomofli-node8850" && password === "vcb") {
+          document.body.classList.add("revealed");
+          instructions.style.display = "block";
+          enterButton.style.display = "none";
+          hint.textContent = "Access granted.";
+          usernameInput.disabled = true;
+          passwordInput.disabled = true;
+        } else {
+          hint.textContent = "Incorrect credentials.";
+        }
       }
 
-      revealButton.addEventListener("click", revealNext);
+      enterButton.addEventListener("click", checkCredentials);
+      passwordInput.addEventListener("keydown", (event) => {
+        if (event.key === "Enter") {
+          checkCredentials();
+        }
+      });
       document.addEventListener("contextmenu", (event) => event.preventDefault());
     </script>
   </body>
