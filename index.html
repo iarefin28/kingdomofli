@@ -35,6 +35,19 @@
         padding: 24px;
       }
 
+      .back {
+        position: fixed;
+        top: 18px;
+        left: 18px;
+        background: rgba(255, 255, 255, 0.7);
+        border: none;
+        border-radius: 999px;
+        padding: 8px 14px;
+        font-size: 13px;
+        cursor: pointer;
+        box-shadow: 0 6px 14px rgba(0, 0, 0, 0.12);
+      }
+
       @keyframes drift {
         0% { background-position: 0% 50%; }
         50% { background-position: 100% 50%; }
@@ -64,6 +77,12 @@
         color: rgba(0, 0, 0, 0.55);
         font-size: 14px;
         margin: 10px 0 18px;
+      }
+
+      .warning {
+        color: #b40e1a;
+        font-size: 12px;
+        margin-top: 6px;
       }
 
       .credentials {
@@ -129,11 +148,13 @@
     </style>
   </head>
   <body>
+    <button id="backButton" class="back" type="button">Back</button>
     <main>
-      <h1>Kingdom</h1>
+      <h1 id="titleText">Kingdom</h1>
       <p id="statusText" class="status"></p>
+      <p id="warningText" class="warning" hidden>Less than 3 logon attempts remaining before this node is deleted.</p>
 
-      <div class="credentials">
+      <div class="credentials" id="credentials">
         <input id="username" type="text" placeholder="Username" autocomplete="off">
         <input id="password" type="password" placeholder="Password" autocomplete="off">
       </div>
@@ -150,6 +171,8 @@
     </main>
 
     <script>
+      const backButton = document.getElementById("backButton");
+      const titleText = document.getElementById("titleText");
       const usernameInput = document.getElementById("username");
       const passwordInput = document.getElementById("password");
       const enterButton = document.getElementById("enterButton");
@@ -157,13 +180,15 @@
       const statusText = document.getElementById("statusText");
       const messageText = document.getElementById("messageText");
       const instructionList = document.getElementById("instructionList");
+      const warningText = document.getElementById("warningText");
+      const credentials = document.getElementById("credentials");
 
       function getMessageForNow(now) {
         const gateDate = new Date(2026, 0, 24, 0, 0, 0);
         const cutoffDate = new Date(2026, 0, 24, 16, 0, 0);
 
         if (now < gateDate) {
-          return { message: "Jeez someone didn't wait.", showList: false };
+          return { message: "I said Saturday.", showList: false };
         }
         if (now < cutoffDate) {
           return {
@@ -183,8 +208,11 @@
           instructions.style.display = "block";
           enterButton.style.display = "none";
           statusText.textContent = "Access granted for User: Victoria Butterfield.";
+          titleText.textContent = "Sector 8850";
+          warningText.hidden = false;
           usernameInput.disabled = true;
           passwordInput.disabled = true;
+          credentials.style.display = "none";
           const result = getMessageForNow(new Date());
           messageText.textContent = result.message;
           instructionList.style.display = result.showList ? "block" : "none";
@@ -198,6 +226,17 @@
         if (event.key === "Enter") {
           checkCredentials();
         }
+      });
+      backButton.addEventListener("click", () => {
+        backButton.textContent = "Leaving in 10...";
+        backButton.disabled = true;
+        setTimeout(() => {
+          if (history.length > 1) {
+            history.back();
+          } else {
+            window.location.href = "https://www.google.com";
+          }
+        }, 10000);
       });
       document.addEventListener("contextmenu", (event) => event.preventDefault());
     </script>
