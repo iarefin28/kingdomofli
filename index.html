@@ -1,0 +1,162 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Kingdom of Li</title>
+    <style>
+      :root {
+        --gold: #f3c969;
+        --blue: #3a7bd5;
+        --pink: #f3a0c4;
+        --ink: #1a1a1a;
+        --glass: rgba(255, 255, 255, 0.75);
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      html, body {
+        height: 100%;
+      }
+
+      body {
+        margin: 0;
+        font-family: "Georgia", "Times New Roman", serif;
+        color: var(--ink);
+        background: linear-gradient(135deg, var(--gold), var(--blue), var(--pink));
+        background-size: 200% 200%;
+        animation: drift 18s ease-in-out infinite;
+        display: grid;
+        place-items: center;
+        text-align: center;
+        padding: 24px;
+      }
+
+      @keyframes drift {
+        0% { background-position: 0% 50%; }
+        50% { background-position: 100% 50%; }
+        100% { background-position: 0% 50%; }
+      }
+
+      main {
+        width: min(560px, 92vw);
+        background: var(--glass);
+        border-radius: 20px;
+        padding: 28px 24px 30px;
+        box-shadow: 0 12px 30px rgba(0, 0, 0, 0.15);
+        backdrop-filter: blur(8px);
+      }
+
+      h1 {
+        margin: 0 0 18px;
+        font-size: clamp(22px, 4vw, 30px);
+        letter-spacing: 0.5px;
+      }
+
+      .password {
+        display: grid;
+        gap: 8px;
+        margin: 14px 0 22px;
+      }
+
+      .password input {
+        padding: 10px 12px;
+        border-radius: 10px;
+        border: 1px solid rgba(0, 0, 0, 0.2);
+        background: rgba(255, 255, 255, 0.7);
+        font-size: 14px;
+      }
+
+      .password small {
+        color: rgba(0, 0, 0, 0.7);
+        font-size: 12px;
+      }
+
+      .story {
+        background: rgba(255, 255, 255, 0.6);
+        border-radius: 16px;
+        padding: 18px 16px;
+      }
+
+      .story-text {
+        min-height: 64px;
+        font-size: 16px;
+        margin: 0 0 14px;
+      }
+
+      .reveal {
+        border: none;
+        background: var(--blue);
+        color: white;
+        padding: 10px 18px;
+        border-radius: 999px;
+        font-size: 14px;
+        cursor: pointer;
+        transition: transform 150ms ease, box-shadow 150ms ease;
+      }
+
+      .reveal:active {
+        transform: scale(0.98);
+      }
+
+      .reveal:focus-visible {
+        outline: 2px solid rgba(0, 0, 0, 0.6);
+        outline-offset: 2px;
+      }
+
+      .notice {
+        margin-top: 16px;
+        font-size: 12px;
+        color: rgba(0, 0, 0, 0.6);
+      }
+
+      body, main {
+        -webkit-user-select: none;
+        user-select: none;
+        -webkit-touch-callout: none;
+      }
+    </style>
+  </head>
+  <body>
+    <main>
+      <h1>Save this link somewhere, the last link is useless.</h1>
+
+      <div class="password">
+        <input type="password" value="moonlit-rose" disabled aria-disabled="true">
+        <small>Password is disabled for now.</small>
+      </div>
+
+      <div class="story">
+        <p id="storyText" class="story-text">Tap to begin.</p>
+        <button id="revealButton" class="reveal" type="button">Reveal next piece</button>
+      </div>
+
+      <div class="notice">Screenshots cannot be blocked on iPhone, but selection and long-press are disabled.</div>
+    </main>
+
+    <script>
+      const pieces = [
+        "The kingdom wakes under a gold-blue sky.",
+        "A quiet bell rings once, then never again.",
+        "She hides a map inside a song, one note per breath.",
+        "He follows the river until it speaks in pink light.",
+        "The last door opens only when you stop looking for it."
+      ];
+
+      let index = 0;
+      const storyText = document.getElementById("storyText");
+      const revealButton = document.getElementById("revealButton");
+
+      function revealNext() {
+        storyText.textContent = pieces[index];
+        index = (index + 1) % pieces.length;
+        revealButton.textContent = index === 0 ? "Start again" : "Reveal next piece";
+      }
+
+      revealButton.addEventListener("click", revealNext);
+      document.addEventListener("contextmenu", (event) => event.preventDefault());
+    </script>
+  </body>
+</html>
