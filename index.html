@@ -60,6 +60,12 @@
         letter-spacing: 0.5px;
       }
 
+      .status {
+        color: rgba(0, 0, 0, 0.55);
+        font-size: 14px;
+        margin: 10px 0 18px;
+      }
+
       .credentials {
         display: grid;
         gap: 8px;
@@ -74,11 +80,6 @@
         font-size: 14px;
       }
 
-      .credentials small {
-        color: rgba(0, 0, 0, 0.7);
-        font-size: 12px;
-      }
-
       .instructions {
         background: rgba(255, 255, 255, 0.6);
         border-radius: 16px;
@@ -86,7 +87,8 @@
         display: none;
       }
 
-      .instructions ol {
+      .instructions ol,
+      .instructions p {
         text-align: left;
         padding-left: 20px;
         margin: 0;
@@ -128,24 +130,23 @@
   </head>
   <body>
     <main>
-      <h1>Welcome back</h1>
+      <h1>Kingdom</h1>
+      <p id="statusText" class="status"></p>
 
       <div class="credentials">
         <input id="username" type="text" placeholder="Username" autocomplete="off">
         <input id="password" type="password" placeholder="Password" autocomplete="off">
-        <small id="hint">Enter username and password.</small>
       </div>
 
       <button id="enterButton" class="enter" type="button">Enter</button>
 
       <div class="instructions" id="instructions">
-        <ol>
+        <p id="messageText"></p>
+        <ol id="instructionList">
           <li>Save this link somewhere, last link gonna be useless soon.</li>
           <li>On 24-Jan-2025 remove the roses and throw them out.</li>
         </ol>
       </div>
-
-      <div class="notice">Screenshots cannot be blocked on iPhone, but selection and long-press are disabled.</div>
     </main>
 
     <script>
@@ -153,7 +154,25 @@
       const passwordInput = document.getElementById("password");
       const enterButton = document.getElementById("enterButton");
       const instructions = document.getElementById("instructions");
-      const hint = document.getElementById("hint");
+      const statusText = document.getElementById("statusText");
+      const messageText = document.getElementById("messageText");
+      const instructionList = document.getElementById("instructionList");
+
+      function getMessageForNow(now) {
+        const gateDate = new Date(2026, 0, 24, 0, 0, 0);
+        const cutoffDate = new Date(2026, 0, 24, 16, 0, 0);
+
+        if (now < gateDate) {
+          return { message: "Jeez someone didn't wait.", showList: false };
+        }
+        if (now < cutoffDate) {
+          return {
+            message: "Come back when the sunsets prob at like 5 maybe idfk.",
+            showList: false
+          };
+        }
+        return { message: "", showList: true };
+      }
 
       function checkCredentials() {
         const username = usernameInput.value.trim();
@@ -163,11 +182,14 @@
           document.body.classList.add("revealed");
           instructions.style.display = "block";
           enterButton.style.display = "none";
-          hint.textContent = "Access granted.";
+          statusText.textContent = "Access granted for User: Victoria Butterfield.";
           usernameInput.disabled = true;
           passwordInput.disabled = true;
+          const result = getMessageForNow(new Date());
+          messageText.textContent = result.message;
+          instructionList.style.display = result.showList ? "block" : "none";
         } else {
-          hint.textContent = "Incorrect credentials.";
+          statusText.textContent = "Incorrect credentials.";
         }
       }
 
