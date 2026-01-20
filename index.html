@@ -148,7 +148,7 @@
     </style>
   </head>
   <body>
-    <button id="backButton" class="back" type="button">Back</button>
+    <button id="backButton" class="back" type="button" hidden>Back</button>
     <main>
       <h1 id="titleText">Kingdom</h1>
       <p id="statusText" class="status"></p>
@@ -188,7 +188,7 @@
         const cutoffDate = new Date(2026, 0, 24, 16, 0, 0);
 
         if (now < gateDate) {
-          return { message: "I said Saturday.", showList: false };
+          return { message: "Jeez someone didn't follow instructions, Saturday I said.", showList: false };
         }
         if (now < cutoffDate) {
           return {
@@ -213,6 +213,7 @@
           usernameInput.disabled = true;
           passwordInput.disabled = true;
           credentials.style.display = "none";
+          backButton.hidden = false;
           const result = getMessageForNow(new Date());
           messageText.textContent = result.message;
           instructionList.style.display = result.showList ? "block" : "none";
@@ -228,15 +229,31 @@
         }
       });
       backButton.addEventListener("click", () => {
-        backButton.textContent = "Leaving in 10...";
+        let remaining = 10;
+        backButton.textContent = `Leaving in ${remaining}...`;
         backButton.disabled = true;
-        setTimeout(() => {
-          if (history.length > 1) {
-            history.back();
+        const intervalId = setInterval(() => {
+          remaining -= 1;
+          if (remaining <= 0) {
+            clearInterval(intervalId);
+            document.body.classList.remove("revealed");
+            instructions.style.display = "none";
+            enterButton.style.display = "inline-block";
+            statusText.textContent = "";
+            titleText.textContent = "Kingdom";
+            warningText.hidden = true;
+            usernameInput.disabled = false;
+            passwordInput.disabled = false;
+            usernameInput.value = "";
+            passwordInput.value = "";
+            credentials.style.display = "grid";
+            backButton.textContent = "Back";
+            backButton.disabled = false;
+            backButton.hidden = true;
           } else {
-            window.location.href = "https://www.google.com";
+            backButton.textContent = `Leaving in ${remaining}...`;
           }
-        }, 10000);
+        }, 1000);
       });
       document.addEventListener("contextmenu", (event) => event.preventDefault());
     </script>
