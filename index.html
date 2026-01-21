@@ -80,6 +80,10 @@
         margin: 10px 0 18px;
       }
 
+      .status.error {
+        color: #b40e1a;
+      }
+
       .warning {
         color: #b40e1a;
         font-size: 12px;
@@ -152,7 +156,7 @@
     <button id="backButton" class="back" type="button" hidden>Back</button>
     <main>
       <h1 id="titleText">Kingdom</h1>
-      <p id="statusText" class="status"></p>
+      <p id="statusText" class="status">Access denied.</p>
       <p id="warningText" class="warning" hidden>Less than 3 logon attempts remaining before this node is deleted.</p>
 
       <div class="credentials" id="credentials">
@@ -213,6 +217,7 @@
           instructions.style.display = "block";
           enterButton.style.display = "none";
           statusText.textContent = "Access granted for User: Victoria Butterfield.";
+          statusText.classList.remove("error");
           titleText.textContent = "Sector 8850";
           warningText.hidden = false;
           usernameInput.disabled = true;
@@ -225,6 +230,7 @@
         } else {
           statusText.textContent =
             "Caution: Premature logon attempts will trigger the deletion of this visitor node. Node will mature on Unix Timestamp 1769248810. Perhaps, Psalm 37:7 will provide ease.";
+          statusText.classList.add("error");
         }
       }
 
