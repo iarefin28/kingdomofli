@@ -64,7 +64,8 @@
       }
 
       body.revealed {
-        background: linear-gradient(135deg, #f7b0d8, #f79cc9, #f3a0c4);
+        background: linear-gradient(135deg, #f7b0d8 0%, #f79cc9 45%, #f3a0c4 100%),
+          repeating-linear-gradient(115deg, rgba(0, 0, 0, 0.15) 0px, rgba(0, 0, 0, 0.15) 6px, transparent 6px, transparent 18px);
       }
 
       h1 {
@@ -188,7 +189,11 @@
         const cutoffDate = new Date(2026, 0, 24, 16, 0, 0);
 
         if (now < gateDate) {
-          return { message: "Jeez someone didn't follow instructions, Saturday I said.", showList: false };
+          return {
+            message:
+              "What the Professor would probably say: \"hahaha just follow the instructions I gave you're good w stuff like that.\"",
+            showList: false
+          };
         }
         if (now < cutoffDate) {
           return {
@@ -200,7 +205,7 @@
       }
 
       function checkCredentials() {
-        const username = usernameInput.value.trim();
+        const username = usernameInput.value.trim().toLowerCase();
         const password = passwordInput.value.trim();
 
         if (username === "kingdomofli-node8850" && password === "vcb") {
@@ -218,7 +223,8 @@
           messageText.textContent = result.message;
           instructionList.style.display = result.showList ? "block" : "none";
         } else {
-          statusText.textContent = "Incorrect credentials.";
+          statusText.textContent =
+            "Caution: Premature logon attempts will trigger the deletion of this visitor node. Node will mature on Unix Timestamp 1769248810. Perhaps, Psalm 37:7 will provide ease.";
         }
       }
 
