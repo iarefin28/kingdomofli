@@ -212,13 +212,13 @@
         const username = usernameInput.value.trim().toLowerCase();
         const password = passwordInput.value.trim();
 
-        if (username === "kingdomofli-node8850" && password === "vcb") {
+        if (username === "kingdomofli-node8855" && password === "vcb") {
           document.body.classList.add("revealed");
           instructions.style.display = "block";
           enterButton.style.display = "none";
           statusText.textContent = "Access granted for User: Victoria Butterfield.";
           statusText.classList.remove("error");
-          titleText.textContent = "Sector 8850";
+          titleText.textContent = "Sector 8855";
           warningText.hidden = false;
           usernameInput.disabled = true;
           passwordInput.disabled = true;
@@ -228,9 +228,8 @@
           messageText.textContent = result.message;
           instructionList.style.display = result.showList ? "block" : "none";
         } else {
-          statusText.textContent =
-            "Caution: Premature logon attempts will trigger the deletion of this visitor node. Node will mature on Unix Timestamp 1769248810. Perhaps, Psalm 37:7 will provide ease.";
-          statusText.classList.add("error");
+          statusText.textContent = "Access denied.";
+          statusText.classList.remove("error");
         }
       }
 
