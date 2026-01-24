@@ -4,6 +4,9 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Kingdom of Li</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;600&display=swap" rel="stylesheet">
     <style>
       :root {
         --gold: #f3c969;
@@ -23,29 +26,34 @@
 
       body {
         margin: 0;
-        font-family: "Georgia", "Times New Roman", serif;
+        font-family: "Cormorant Garamond", "Georgia", "Times New Roman", serif;
         color: var(--ink);
-        background: radial-gradient(circle at top, var(--gold), transparent 55%),
-          linear-gradient(90deg, #0a1736 0%, #0a1736 45%, #b40e1a 100%);
-        background-size: 200% 200%;
-        animation: drift 18s ease-in-out infinite;
         display: grid;
         place-items: center;
         text-align: center;
         padding: 24px;
+        min-height: 100svh;
       }
 
-      .back {
+      @supports (height: 100svh) {
+        body {
+          height: 100svh;
+        }
+      }
+
+      body.kingdom {
+        background: radial-gradient(circle at top, var(--gold), transparent 55%),
+          linear-gradient(90deg, #0a1736 0%, #0a1736 45%, #b40e1a 100%);
+        background-size: 200% 200%;
+        animation: drift 18s ease-in-out infinite;
+        overflow: hidden;
         position: fixed;
-        top: 18px;
-        left: 18px;
-        background: rgba(255, 255, 255, 0.7);
-        border: none;
-        border-radius: 999px;
-        padding: 8px 14px;
-        font-size: 13px;
-        cursor: pointer;
-        box-shadow: 0 6px 14px rgba(0, 0, 0, 0.12);
+        width: 100%;
+      }
+
+      body.vb {
+        background: linear-gradient(135deg, #f7b0d8 0%, #f79cc9 45%, #f3a0c4 100%),
+          repeating-linear-gradient(115deg, rgba(0, 0, 0, 0.15) 0px, rgba(0, 0, 0, 0.15) 6px, transparent 6px, transparent 18px);
       }
 
       @keyframes drift {
@@ -61,22 +69,23 @@
         padding: 28px 24px 30px;
         box-shadow: 0 12px 30px rgba(0, 0, 0, 0.15);
         backdrop-filter: blur(8px);
+        min-height: 320px;
+        transition: transform 250ms ease;
       }
 
-      body.revealed {
-        background: linear-gradient(135deg, #f7b0d8 0%, #f79cc9 45%, #f3a0c4 100%),
-          repeating-linear-gradient(115deg, rgba(0, 0, 0, 0.15) 0px, rgba(0, 0, 0, 0.15) 6px, transparent 6px, transparent 18px);
+      #kingdomNode:focus-within {
+        transform: translateY(-10px);
       }
 
       h1 {
         margin: 0 0 18px;
-        font-size: clamp(22px, 4vw, 30px);
+        font-size: clamp(26px, 5vw, 36px);
         letter-spacing: 0.5px;
       }
 
       .status {
         color: rgba(0, 0, 0, 0.55);
-        font-size: 14px;
+        font-size: 17px;
         margin: 10px 0 18px;
       }
 
@@ -84,16 +93,11 @@
         color: #b40e1a;
       }
 
-      .warning {
-        color: #b40e1a;
-        font-size: 12px;
-        margin-top: 6px;
-      }
-
       .credentials {
         display: grid;
         gap: 8px;
         margin: 14px 0 22px;
+        transition: opacity 300ms ease, transform 300ms ease;
       }
 
       .credentials input {
@@ -101,34 +105,40 @@
         border-radius: 10px;
         border: 1px solid rgba(0, 0, 0, 0.2);
         background: rgba(255, 255, 255, 0.7);
-        font-size: 14px;
-      }
-
-      .instructions {
-        background: rgba(255, 255, 255, 0.6);
-        border-radius: 16px;
-        padding: 18px 16px;
-        display: none;
-      }
-
-      .instructions ol,
-      .instructions p {
-        text-align: left;
-        padding-left: 20px;
-        margin: 0;
-        font-size: 15px;
+        font-size: 18px;
       }
 
       .enter {
         border: none;
         background: var(--blue);
         color: white;
-        padding: 10px 18px;
+        padding: 14px 26px;
         border-radius: 999px;
-        font-size: 14px;
         cursor: pointer;
         transition: transform 150ms ease, box-shadow 150ms ease;
+        width: 100%;
+        opacity: 0;
+        pointer-events: none;
+        font-size: 18px;
       }
+
+      .enter.is-active {
+        opacity: 1;
+        pointer-events: auto;
+        transition: opacity 300ms ease;
+      }
+
+      .action-area {
+        min-height: 220px;
+        display: grid;
+        align-content: start;
+      }
+
+      .action-area.loading .credentials,
+      .action-area.loading .enter {
+        display: none;
+      }
+
 
       .enter:active {
         transform: scale(0.98);
@@ -139,10 +149,259 @@
         outline-offset: 2px;
       }
 
-      .notice {
-        margin-top: 16px;
-        font-size: 12px;
+      .loader {
+        display: grid;
+        justify-items: center;
+        gap: 10px;
+        margin-top: 12px;
+        min-height: 180px;
+      }
+
+      .spinner {
+        width: 26px;
+        height: 26px;
+        border-radius: 50%;
+        border: 3px solid rgba(58, 123, 213, 0.2);
+        border-top-color: rgba(58, 123, 213, 0.9);
+        animation: spin 0.9s linear infinite;
+      }
+
+      @keyframes spin {
+        to { transform: rotate(360deg); }
+      }
+
+      .loader-text {
+        font-size: 17px;
         color: rgba(0, 0, 0, 0.6);
+        min-height: 120px;
+        text-align: center;
+      }
+
+      .loader-text .line {
+        margin: 4px 0;
+      }
+
+      .fade-in {
+        animation: fadeIn 0.6s ease;
+      }
+
+      @keyframes fadeIn {
+        from { opacity: 0; }
+        to { opacity: 1; }
+      }
+
+      .loader-graphic {
+        width: 180px;
+        height: 6px;
+        border-radius: 999px;
+        background: rgba(58, 123, 213, 0.2);
+        overflow: hidden;
+        display: none;
+      }
+
+      .loader-graphic span {
+        display: block;
+        height: 100%;
+        width: 35%;
+        border-radius: 999px;
+        background: rgba(58, 123, 213, 0.8);
+        animation: glide 1.4s ease-in-out infinite;
+      }
+
+      @keyframes glide {
+        0% { transform: translateX(-40%); }
+        50% { transform: translateX(180%); }
+        100% { transform: translateX(-40%); }
+      }
+
+      .accent {
+        color: #f07bb0;
+        font-weight: 600;
+      }
+
+      .hidden {
+        display: none;
+      }
+
+      .snapshot {
+        background: rgba(255, 255, 255, 0.6);
+        border-radius: 16px;
+        padding: 18px 16px;
+        min-height: 110px;
+        font-size: 17px;
+      }
+
+      .controls {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 12px;
+        margin-top: 16px;
+      }
+
+      .controls button {
+        border: none;
+        background: var(--blue);
+        color: white;
+        padding: 8px 16px;
+        border-radius: 999px;
+        font-size: 15px;
+        cursor: pointer;
+      }
+
+      .controls span {
+        font-size: 14px;
+        color: rgba(0, 0, 0, 0.6);
+      }
+
+      #vbNode {
+        width: 100%;
+        height: 100%;
+        padding: 0;
+        background: transparent;
+        box-shadow: none;
+        border-radius: 0;
+        position: fixed;
+        inset: 0;
+        overflow: hidden;
+      }
+
+      .thought {
+        position: absolute;
+        max-width: min(70vw, 420px);
+        padding: 16px 18px;
+        background: rgba(255, 255, 255, 0.68);
+        border-radius: 16px;
+        box-shadow: 0 8px 18px rgba(0, 0, 0, 0.12);
+        font-size: 19px;
+        color: rgba(0, 0, 0, 0.7);
+        text-shadow: 0 4px 14px rgba(0, 0, 0, 0.06);
+        cursor: pointer;
+      }
+
+      .exit-node {
+        border: none;
+        background: rgba(255, 255, 255, 0.85);
+        color: rgba(0, 0, 0, 0.7);
+        padding: 8px 14px;
+        border-radius: 999px;
+        font-size: 14px;
+        cursor: pointer;
+        box-shadow: 0 6px 14px rgba(0, 0, 0, 0.12);
+      }
+
+      .completed-node {
+        border: none;
+        background: rgba(255, 255, 255, 0.85);
+        color: rgba(0, 0, 0, 0.7);
+        padding: 8px 14px;
+        border-radius: 999px;
+        font-size: 14px;
+        cursor: pointer;
+        box-shadow: 0 6px 14px rgba(0, 0, 0, 0.12);
+      }
+
+      .vb-header {
+        position: fixed;
+        top: 12px;
+        left: 12px;
+        right: 12px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 10px;
+        padding: 10px 12px;
+        border-radius: 18px;
+        background: linear-gradient(120deg, rgba(255, 214, 230, 0.85), rgba(255, 245, 250, 0.9));
+        box-shadow: 0 10px 24px rgba(0, 0, 0, 0.15);
+        z-index: 2;
+      }
+
+      .vb-actions {
+        display: flex;
+        gap: 10px;
+      }
+
+      .vb-subheader {
+        position: fixed;
+        top: 70px;
+        left: 12px;
+        right: 12px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 12px;
+        padding: 10px 14px;
+        border-radius: 14px;
+        background: rgba(255, 255, 255, 0.85);
+        color: rgba(0, 0, 0, 0.7);
+        font-size: 14px;
+        box-shadow: 0 8px 18px rgba(0, 0, 0, 0.12);
+        z-index: 2;
+      }
+
+      .vb-subheader span {
+        font-weight: 600;
+      }
+
+      .completed-panel {
+        position: fixed;
+        top: 120px;
+        left: 12px;
+        right: 12px;
+        max-height: min(70vh, 420px);
+        overflow: auto;
+        padding: 14px 16px;
+        background: rgba(255, 255, 255, 0.9);
+        border-radius: 16px;
+        box-shadow: 0 10px 24px rgba(0, 0, 0, 0.18);
+      }
+
+      .completed-panel h2 {
+        margin: 0 0 10px;
+        font-size: 18px;
+      }
+
+      .completed-panel ul {
+        list-style: none;
+        padding: 0;
+        margin: 0;
+        display: grid;
+        gap: 10px;
+      }
+
+      .completed-panel li {
+        font-size: 14px;
+        color: rgba(0, 0, 0, 0.75);
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 10px;
+      }
+
+      .completed-panel small {
+        font-size: 12px;
+        color: rgba(0, 0, 0, 0.55);
+      }
+
+      .episode-pending {
+        color: rgba(0, 0, 0, 0.4);
+      }
+
+      .episode-actions {
+        margin-top: 8px;
+        display: flex;
+        gap: 8px;
+      }
+
+      .episode-actions button {
+        border: none;
+        background: rgba(58, 123, 213, 0.9);
+        color: white;
+        padding: 6px 10px;
+        border-radius: 999px;
+        font-size: 12px;
+        cursor: pointer;
       }
 
       body, main {
@@ -152,120 +411,630 @@
       }
     </style>
   </head>
-  <body>
-    <button id="backButton" class="back" type="button" hidden>Back</button>
-    <main>
-      <h1 id="titleText">Kingdom</h1>
+  <body class="kingdom">
+    <main id="kingdomNode">
+      <div>
+        <h1>Kingdom</h1>
+        <p id="deviceText" class="status"></p>
+      </div>
       <p id="statusText" class="status"></p>
-      <p id="warningText" class="warning" hidden>Less than 3 logon attempts remaining before this node is deleted.</p>
 
-      <div class="credentials" id="credentials">
-        <input id="username" type="text" placeholder="Username" autocomplete="off">
-        <input id="password" type="password" placeholder="Password" autocomplete="off">
+      <div id="actionArea" class="action-area">
+        <div class="credentials">
+          <input id="username" type="text" placeholder="Username" autocomplete="off" inputmode="text">
+          <input id="password" type="password" placeholder="Password" autocomplete="off" inputmode="text">
+        </div>
+
+        <button id="enterButton" class="enter" type="button">Enter</button>
+
+        <div id="loader" class="loader hidden" aria-live="polite">
+          <div class="spinner" aria-hidden="true"></div>
+          <div id="loaderText" class="loader-text"></div>
+          <div id="loaderGraphic" class="loader-graphic" aria-hidden="true"><span></span></div>
+        </div>
       </div>
 
-      <button id="enterButton" class="enter" type="button">Enter</button>
+    </main>
 
-      <div class="instructions" id="instructions">
-        <p id="messageText"></p>
-        <ol id="instructionList">
-          <li>Save this link somewhere, last link gonna be useless soon.</li>
-          <li>On 24-Jan-2025 remove the roses and throw them out.</li>
-        </ol>
+    <main id="vbNode" class="hidden">
+      <div class="vb-header">
+        <div class="vb-actions">
+          <button id="completedNode" class="completed-node" type="button">Artifacts</button>
+        </div>
+        <div class="vb-actions">
+          <button id="exitNode" class="exit-node" type="button">Exit</button>
+        </div>
+      </div>
+      <div class="vb-subheader">
+        <span>Next Up: Intro to Kingdom</span>
+        <div>Tap here to start.</div>
+      </div>
+      <div id="completedPanel" class="completed-panel hidden" role="dialog" aria-live="polite">
+        <h2>Artifacts</h2>
+        <ul id="completedList"></ul>
+      </div>
+      <div id="snapshotCard" class="thought" role="button" tabindex="0" aria-live="polite">
+        <p id="snapshotText"></p>
       </div>
     </main>
 
     <script>
-      const backButton = document.getElementById("backButton");
-      const titleText = document.getElementById("titleText");
+      const deviceText = document.getElementById("deviceText");
+      const statusText = document.getElementById("statusText");
       const usernameInput = document.getElementById("username");
       const passwordInput = document.getElementById("password");
       const enterButton = document.getElementById("enterButton");
-      const instructions = document.getElementById("instructions");
-      const statusText = document.getElementById("statusText");
-      const messageText = document.getElementById("messageText");
-      const instructionList = document.getElementById("instructionList");
-      const warningText = document.getElementById("warningText");
-      const credentials = document.getElementById("credentials");
+      const actionArea = document.getElementById("actionArea");
+      const loader = document.getElementById("loader");
+      const loaderText = document.getElementById("loaderText");
+      const loaderGraphic = document.getElementById("loaderGraphic");
+      const kingdomNode = document.getElementById("kingdomNode");
+      const vbNode = document.getElementById("vbNode");
+      const exitNode = document.getElementById("exitNode");
+      const completedNode = document.getElementById("completedNode");
+      const completedPanel = document.getElementById("completedPanel");
+      const completedList = document.getElementById("completedList");
+      const snapshotCard = document.getElementById("snapshotCard");
+      const snapshotText = document.getElementById("snapshotText");
+      const vbSubheader = document.querySelector(".vb-subheader");
 
-      function getMessageForNow(now) {
-        const gateDate = new Date(2026, 0, 24, 0, 0, 0);
-        const cutoffDate = new Date(2026, 0, 24, 16, 0, 0);
+      const episodes = [
+        {
+          id: "intro",
+          title: "Intro to Kingdom",
+thoughts: [
+  "Welcome, VCB.",
+  "This is a small, private node within Lord Ishan’s Kingdom.",
+  "It is intentionally separated from the Kingdom’s core systems to avoid interacting with other nodes in the Kingdom.",
+  "Lord Ishan has manually configured the properties of this node to protect your experience, keep it simple, truthful, and private.",
+  "You benefit from the full security of the Kingdom and can extract from it meaningfully, yet can proceed completely at your own pace.",
+  "This node only releases thoughts.",
+  "Interactivity is limited by design.",
+  "This node was granted a high level of Kingdom processing power.",
+  "Because of this, these insights are very close to Lord Ishan’s own thoughts.",
+  "They are shared carefully and without pressure.",
+  "If you continue to use this node, additional thoughts and controls may appear over time.",
+  "This node represents a small fraction of the tools available at higher nodes of the Kingdom.",
+  "You will have the option to self destruct this node within three weeks.",
+  "That option will appear after the gift explanation of the story of the 9 Roses.",
+  "\"oh yea if you see these bubbles with double quotes then it’s my direct words but I had to separate all of this and make it way more simple so that you don’t gotta be worried\"",
+  "\"if you got this far good job making it, don’t overthink it just be a girl and enjoy\"",
+  "\"and of course I got something like this I am after all the smartest person in the entire world\""
+]
 
-        if (now < gateDate) {
-          return {
-            message:
-              "What the Professor would probably say: \"hahaha just follow the instructions I gave you're good w stuff like that.\"",
-            showList: false
-          };
+
+        },
+        {
+          id: "roses",
+          title: "9 Roses",
+          status: "pending",
+          thoughts: []
         }
-        if (now < cutoffDate) {
-          return {
-            message: "Come back when the sunsets prob at like 5 maybe idfk.",
-            showList: false
-          };
+      ];
+
+      const visitorSequence = [
+        {
+          lines: [
+            { html: "Credentials validated!" },
+            { html: "User found initiating access protocol" },
+            {
+              html: "Granting access to user: <span class=\"accent\" id=\"nameSpan\"></span>",
+              typeName: "Victoria Butterfield",
+              typeDelay: 500
+            }
+          ]
+        },
+        {
+          lines: [
+            { html: "Checking special instructions granted by \ud83d\udc51..." }
+          ]
+        },
+        {
+          lines: [
+            { html: "3 instructions found:" },
+            { html: "&nbsp;&nbsp;1) cmd: grant node 99.9% of Kingdom processing power" },
+            { html: "&nbsp;&nbsp;2) cmd: mask architectural complexity" },
+            { html: "&nbsp;&nbsp;3) cmd: enable user-safe abstraction" }
+          ]
+        },
+        {
+          lines: [
+            { html: "cmd: direct retrieval from Kingdom vault [8055:2:34:11:11]" },
+            { html: "cmd: direct retrieval from Kingdom vault [8055:2:34:11:1888] cmd: explain gift" },
+            { html: "Artifact located: Intro to Kingdom" },
+            { html: "Artifact located: 9 roses \ud83c\udf39" },
+            { html: "cmd: Finalizing access..." }
+          ]
+        },
+        {
+          lines: [
+            { html: "Welcome VCB!" }
+          ],
+          showGraphic: true
         }
-        return { message: "", showList: true };
+      ];
+
+      const creatorSequence = [
+        {
+          lines: [
+            { html: "Lord Ishan" }
+          ]
+        }
+      ];
+
+      let snapshotIndex = 0;
+      const vbStateKey = "vbNodeState";
+      const episodeStateKey = "vbEpisodeState";
+      const activeEpisode = episodes[0];
+      let thoughtAnimId = null;
+      let thoughtState = null;
+
+      function loadEpisodeState() {
+        try {
+          return JSON.parse(localStorage.getItem(episodeStateKey)) || {
+            episodeId: activeEpisode.id,
+            index: 0,
+            completedAt: null,
+            started: false
+          };
+        } catch {
+          return { episodeId: activeEpisode.id, index: 0, completedAt: null, started: false };
+        }
       }
 
-      function checkCredentials() {
-        const username = usernameInput.value.trim().toLowerCase();
-        const password = passwordInput.value.trim();
+      function saveEpisodeState(state) {
+        localStorage.setItem(episodeStateKey, JSON.stringify(state));
+      }
 
-        if (username === "kingdomofli-node8850" && password === "vcb") {
-          document.body.classList.add("revealed");
-          instructions.style.display = "block";
-          enterButton.style.display = "none";
-          statusText.textContent = "Access granted for User: Victoria Butterfield.";
-          statusText.classList.remove("error");
-          titleText.textContent = "Sector 8850";
-          warningText.hidden = false;
-          usernameInput.disabled = true;
-          passwordInput.disabled = true;
-          credentials.style.display = "none";
-          backButton.hidden = false;
-          const result = getMessageForNow(new Date());
-          messageText.textContent = result.message;
-          instructionList.style.display = result.showList ? "block" : "none";
+      function renderEpisodes() {
+        completedList.innerHTML = "";
+        const state = loadEpisodeState();
+        for (const episode of episodes) {
+          const li = document.createElement("li");
+          const isActive = episode.id === activeEpisode.id;
+          const isCompleted = isActive && state.completedAt;
+          li.textContent = `${episodes.indexOf(episode) + 1}. ${episode.title}`;
+          if (!isActive || episode.status === "pending") {
+            li.classList.add("episode-pending");
+          }
+          if (episode.status === "pending") {
+            const pending = document.createElement("small");
+            pending.textContent = "Est. to be ready by 01/23/26 9pm";
+            li.appendChild(pending);
+          }
+          if (isCompleted) {
+            const done = document.createElement("small");
+            done.textContent = "Completed";
+            li.appendChild(done);
+            const actions = document.createElement("div");
+            actions.className = "episode-actions";
+            const replay = document.createElement("button");
+            replay.type = "button";
+            replay.textContent = "Play again";
+            replay.addEventListener("click", () => {
+              const fresh = { episodeId: activeEpisode.id, index: 0, completedAt: null, started: true };
+              snapshotIndex = 0;
+              snapshotCard.classList.remove("hidden");
+              saveEpisodeState(fresh);
+              setSnapshot(0);
+              updateSubheader(fresh);
+              startThoughtMotion();
+              completedPanel.classList.add("hidden");
+            });
+            actions.appendChild(replay);
+            li.appendChild(actions);
+          }
+          completedList.appendChild(li);
+        }
+      }
+
+      function getDeviceType() {
+        const ua = navigator.userAgent;
+        if (/iPhone/i.test(ua)) {
+          return "iPhone";
+        }
+        if (/iPad/i.test(ua)) {
+          return "iPad";
+        }
+        if (/Android/i.test(ua)) {
+          return "Android";
+        }
+        if (/Macintosh|Windows|Linux/i.test(ua)) {
+          return "Desktop";
+        }
+        return "Unknown";
+      }
+
+      function isIphone() {
+        return /iPhone/i.test(navigator.userAgent);
+      }
+
+      function updateEnterVisibility() {
+        const hasUser = usernameInput.value.trim().length > 0;
+        const hasPass = passwordInput.value.trim().length > 0;
+        enterButton.classList.toggle("is-active", hasUser && hasPass);
+      }
+
+      function setSnapshot(index) {
+        const state = loadEpisodeState();
+        const thoughts = activeEpisode.thoughts;
+        snapshotIndex = Math.min(index, thoughts.length - 1);
+        snapshotText.textContent = thoughts[snapshotIndex];
+        positionThought();
+        const updatedState = {
+          episodeId: activeEpisode.id,
+          index: snapshotIndex,
+          completedAt: state.completedAt,
+          started: true
+        };
+        saveEpisodeState(updatedState);
+        localStorage.setItem(vbStateKey, JSON.stringify({ node: "vb", index: snapshotIndex }));
+        updateSubheader(updatedState);
+      }
+
+      function resetLogin() {
+        statusText.textContent = "";
+        statusText.classList.remove("error");
+        usernameInput.disabled = false;
+        passwordInput.disabled = false;
+        usernameInput.value = "";
+        passwordInput.value = "";
+        updateEnterVisibility();
+        loader.classList.add("hidden");
+        loaderText.textContent = "";
+        loaderGraphic.style.display = "none";
+        enterButton.disabled = false;
+        actionArea.classList.remove("loading");
+      }
+
+      function showKingdom() {
+        document.body.classList.remove("vb");
+        document.body.classList.add("kingdom");
+        kingdomNode.classList.remove("hidden");
+        vbNode.classList.add("hidden");
+        resetLogin();
+        localStorage.removeItem(vbStateKey);
+        completedPanel.classList.add("hidden");
+        stopThoughtMotion();
+      }
+
+      function showVBNode(isCreator) {
+        document.body.classList.remove("kingdom");
+        document.body.classList.add("vb");
+        kingdomNode.classList.add("hidden");
+        vbNode.classList.remove("hidden");
+        const state = loadEpisodeState();
+        snapshotIndex = typeof state.index === "number" ? state.index : 0;
+        if (state.completedAt) {
+          snapshotCard.classList.add("hidden");
+          stopThoughtMotion();
+        } else if (state.started) {
+          snapshotCard.classList.remove("hidden");
+          setSnapshot(snapshotIndex);
+          startThoughtMotion();
         } else {
-          statusText.textContent = "Access denied.";
-          statusText.classList.remove("error");
+          snapshotCard.classList.add("hidden");
         }
+        updateSubheader(state);
+        history.pushState({ node: "vb" }, "", "#vb");
       }
 
-      enterButton.addEventListener("click", checkCredentials);
+      function typeName(text, delayMs = 0) {
+        const target = document.getElementById("nameSpan");
+        if (!target) {
+          return Promise.resolve();
+        }
+        let index = 0;
+        return new Promise((resolve) => {
+          setTimeout(() => {
+          const intervalId = setInterval(() => {
+            target.textContent += text[index];
+            index += 1;
+            if (index >= text.length) {
+              clearInterval(intervalId);
+              resolve();
+            }
+          }, 70);
+          }, delayMs);
+        });
+      }
+
+      function playSequence(groups, intervalMs, onDone) {
+        let groupIndex = 0;
+
+        const runGroup = async () => {
+          const group = groups[groupIndex];
+          loaderText.innerHTML = "";
+          loaderGraphic.style.display = group.showGraphic ? "block" : "none";
+          for (const line of group.lines) {
+            const lineEl = document.createElement("div");
+            lineEl.className = "line fade-in";
+            lineEl.innerHTML = line.html;
+            loaderText.appendChild(lineEl);
+            if (line.typeName) {
+              await typeName(line.typeName, line.typeDelay || 0);
+            }
+            await new Promise((resolve) => setTimeout(resolve, intervalMs));
+          }
+
+          groupIndex += 1;
+          if (groupIndex >= groups.length) {
+            onDone();
+            return;
+          }
+          setTimeout(runGroup, intervalMs);
+        };
+
+        runGroup();
+      }
+
+      function handleLogin() {
+        const username = usernameInput.value.trim().toLowerCase();
+        const password = passwordInput.value.trim().toLowerCase();
+
+        statusText.textContent = "";
+        statusText.classList.remove("error");
+
+        const visitorMatch = username === "kingdomofli-node8850" && password === "vcb";
+        const creatorMatch = username === "kingdomofli-node8850" && password === "vcbima";
+
+        if (!visitorMatch && !creatorMatch) {
+          statusText.textContent = "Access Denied";
+          statusText.classList.add("error");
+          return;
+        }
+
+        if (!isIphone()) {
+          statusText.textContent = "Access Denied: This node can only be accessed on an iPhone browser.";
+          statusText.classList.add("error");
+          return;
+        }
+
+        usernameInput.disabled = true;
+        passwordInput.disabled = true;
+        enterButton.disabled = true;
+        enterButton.classList.remove("is-active");
+        actionArea.classList.add("loading");
+        const sequence = creatorMatch ? creatorSequence : visitorSequence;
+        const intervalMs = creatorMatch ? 1100 : 2000;
+        loader.classList.remove("hidden");
+        playSequence(sequence, intervalMs, () => {
+          snapshotIndex = 0;
+          saveEpisodeState({ episodeId: activeEpisode.id, index: 0, completedAt: null, started: false });
+          showVBNode(creatorMatch);
+        });
+      }
+
+      deviceText.textContent = `Device: ${getDeviceType()}`;
+      if (!history.state) {
+        history.replaceState({ node: "kingdom" }, "", window.location.pathname + window.location.search);
+      }
+      let restored = false;
+      const savedState = localStorage.getItem(vbStateKey);
+      if (savedState) {
+        try {
+          const parsed = JSON.parse(savedState);
+          if (parsed && parsed.node === "vb") {
+            snapshotIndex = typeof parsed.index === "number" ? parsed.index : 0;
+            showVBNode(false);
+            restored = true;
+          }
+        } catch {
+          localStorage.removeItem(vbStateKey);
+        }
+      }
+      updateEnterVisibility();
+      if (!restored) {
+        setSnapshot(0);
+      }
+
+      usernameInput.addEventListener("input", updateEnterVisibility);
+      passwordInput.addEventListener("input", updateEnterVisibility);
+      enterButton.addEventListener("click", handleLogin);
       passwordInput.addEventListener("keydown", (event) => {
         if (event.key === "Enter") {
-          checkCredentials();
+          handleLogin();
         }
       });
-      backButton.addEventListener("click", () => {
-        let remaining = 10;
-        backButton.textContent = `Leaving in ${remaining}...`;
-        backButton.disabled = true;
-        const intervalId = setInterval(() => {
-          remaining -= 1;
-          if (remaining <= 0) {
-            clearInterval(intervalId);
-            document.body.classList.remove("revealed");
-            instructions.style.display = "none";
-            enterButton.style.display = "inline-block";
-            statusText.textContent = "";
-            titleText.textContent = "Kingdom";
-            warningText.hidden = true;
-            usernameInput.disabled = false;
-            passwordInput.disabled = false;
-            usernameInput.value = "";
-            passwordInput.value = "";
-            credentials.style.display = "grid";
-            backButton.textContent = "Back";
-            backButton.disabled = false;
-            backButton.hidden = true;
-          } else {
-            backButton.textContent = `Leaving in ${remaining}...`;
+
+      function advanceSnapshot() {
+        const thoughts = activeEpisode.thoughts;
+        const state = loadEpisodeState();
+        const lastIndex = thoughts.length - 1;
+        if (state.completedAt) {
+          snapshotCard.classList.add("hidden");
+          updateSubheader(state);
+          return;
+        }
+        if (snapshotIndex >= lastIndex) {
+          endEpisode();
+          return;
+        }
+        snapshotCard.classList.remove("fade-in");
+        void snapshotCard.offsetWidth;
+        snapshotIndex = Math.min(snapshotIndex + 1, lastIndex);
+        snapshotText.textContent = thoughts[snapshotIndex];
+        positionThought();
+        const updatedState = {
+          episodeId: activeEpisode.id,
+          index: snapshotIndex,
+          completedAt: null,
+          started: true
+        };
+        saveEpisodeState(updatedState);
+        localStorage.setItem(vbStateKey, JSON.stringify({ node: "vb", index: snapshotIndex }));
+        snapshotCard.classList.add("fade-in");
+        updateSubheader(updatedState);
+      }
+
+      function positionThought() {
+        const padding = 24;
+        const headerBottom = vbSubheader.getBoundingClientRect().bottom + 12;
+        const maxX = Math.max(padding, window.innerWidth - snapshotCard.offsetWidth - padding);
+        const maxY = Math.max(headerBottom, window.innerHeight - snapshotCard.offsetHeight - padding);
+        const x = padding + Math.random() * (maxX - padding);
+        const y = headerBottom + Math.random() * (maxY - headerBottom);
+        snapshotCard.style.left = `${Math.round(x)}px`;
+        snapshotCard.style.top = `${Math.round(y)}px`;
+        const speed = 40 + Math.random() * 25;
+        const angle = Math.random() * Math.PI * 2;
+        thoughtState = {
+          x,
+          y,
+          vx: Math.cos(angle) * speed,
+          vy: Math.sin(angle) * speed
+        };
+      }
+
+      function updateSubheader(state) {
+        const left = vbSubheader.querySelector("span");
+        const right = vbSubheader.querySelector("div");
+        const pendingEpisode = episodes.find((episode) => episode.status === "pending");
+        const lastIndex = activeEpisode.thoughts.length - 1;
+        const atEnd = snapshotIndex >= lastIndex;
+        if (state && !state.completedAt) {
+          if (state.started) {
+            left.textContent = `Currently on: ${activeEpisode.title}`;
+            right.textContent = atEnd ? "Tap to End." : "Tap to continue.";
+            completedNode.classList.add("hidden");
+            completedPanel.classList.add("hidden");
+            return;
           }
-        }, 1000);
+          left.textContent = `Next Up: ${activeEpisode.title}`;
+          right.textContent = "Tap here to start.";
+          completedNode.classList.remove("hidden");
+          return;
+        }
+        if (pendingEpisode) {
+          left.textContent = `Next Up: ${pendingEpisode.title}`;
+          right.textContent = "Est. to be ready by 01/23/26 9pm";
+          completedNode.classList.remove("hidden");
+          return;
+        }
+        left.textContent = "Up to date";
+        right.textContent = "";
+        completedNode.classList.remove("hidden");
+      }
+
+      function endEpisode() {
+        const state = loadEpisodeState();
+        if (state.completedAt) {
+          return;
+        }
+        const thoughts = activeEpisode.thoughts;
+        if (snapshotIndex < thoughts.length - 1) {
+          return;
+        }
+        const updatedState = {
+          episodeId: activeEpisode.id,
+          index: snapshotIndex,
+          completedAt: true,
+          started: true
+        };
+        saveEpisodeState(updatedState);
+        snapshotCard.classList.add("hidden");
+        stopThoughtMotion();
+        updateSubheader(updatedState);
+      }
+
+      function startEpisode() {
+        const state = loadEpisodeState();
+        if (state.completedAt) {
+          return;
+        }
+        const fresh = { episodeId: activeEpisode.id, index: 0, completedAt: null, started: true };
+        snapshotIndex = 0;
+        snapshotCard.classList.remove("hidden");
+        saveEpisodeState(fresh);
+        setSnapshot(0);
+        startThoughtMotion();
+        updateSubheader(fresh);
+      }
+
+      function getThoughtBounds() {
+        const padding = 24;
+        const headerBottom = vbSubheader.getBoundingClientRect().bottom + 12;
+        return {
+          minX: padding,
+          maxX: Math.max(padding, window.innerWidth - snapshotCard.offsetWidth - padding),
+          minY: headerBottom,
+          maxY: Math.max(headerBottom, window.innerHeight - snapshotCard.offsetHeight - padding)
+        };
+      }
+
+      function startThoughtMotion() {
+        if (thoughtAnimId || snapshotCard.classList.contains("hidden")) {
+          return;
+        }
+        let lastTime = performance.now();
+        const step = (now) => {
+          if (!thoughtState || snapshotCard.classList.contains("hidden")) {
+            thoughtAnimId = null;
+            return;
+          }
+          const dt = (now - lastTime) / 1000;
+          lastTime = now;
+          const bounds = getThoughtBounds();
+          thoughtState.x += thoughtState.vx * dt;
+          thoughtState.y += thoughtState.vy * dt;
+          if (thoughtState.x <= bounds.minX || thoughtState.x >= bounds.maxX) {
+            thoughtState.vx *= -1;
+            thoughtState.x = Math.min(Math.max(thoughtState.x, bounds.minX), bounds.maxX);
+          }
+          if (thoughtState.y <= bounds.minY || thoughtState.y >= bounds.maxY) {
+            thoughtState.vy *= -1;
+            thoughtState.y = Math.min(Math.max(thoughtState.y, bounds.minY), bounds.maxY);
+          }
+          snapshotCard.style.left = `${Math.round(thoughtState.x)}px`;
+          snapshotCard.style.top = `${Math.round(thoughtState.y)}px`;
+          thoughtAnimId = requestAnimationFrame(step);
+        };
+        thoughtAnimId = requestAnimationFrame(step);
+      }
+
+      function stopThoughtMotion() {
+        if (thoughtAnimId) {
+          cancelAnimationFrame(thoughtAnimId);
+          thoughtAnimId = null;
+        }
+      }
+
+      snapshotCard.addEventListener("click", advanceSnapshot);
+      snapshotCard.addEventListener("keydown", (event) => {
+        if (event.key === "Enter" || event.key === " ") {
+          event.preventDefault();
+          advanceSnapshot();
+        }
       });
+
+      vbSubheader.addEventListener("click", (event) => {
+        const state = loadEpisodeState();
+        if (state.started && !state.completedAt) {
+          endEpisode();
+          return;
+        }
+        if (!state.completedAt) {
+          startEpisode();
+        }
+      });
+
+      completedNode.addEventListener("click", () => {
+        completedPanel.classList.toggle("hidden");
+        renderEpisodes();
+      });
+
+      exitNode.addEventListener("click", () => {
+        history.pushState({ node: "kingdom" }, "", window.location.pathname + window.location.search);
+        showKingdom();
+      });
+
+
+      window.addEventListener("popstate", (event) => {
+        if (event.state && event.state.node === "kingdom") {
+          showKingdom();
+        }
+      });
+
       document.addEventListener("contextmenu", (event) => event.preventDefault());
     </script>
   </body>
