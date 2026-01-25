@@ -598,7 +598,7 @@ thoughts: [
           }
           if (episode.status === "pending") {
             const pending = document.createElement("small");
-            pending.textContent = "Est. to be ready by 01/23/26 9pm";
+            pending.textContent = "Release Time Updated: Today at 11pm";
             li.appendChild(pending);
           }
           if (isCompleted) {
@@ -906,7 +906,7 @@ thoughts: [
         }
         if (pendingEpisode) {
           left.textContent = `Next Up: ${pendingEpisode.title}`;
-          right.textContent = "Est. to be ready by 01/23/26 9pm";
+          right.textContent = "Release Time Updated: Today at 11pm";
           completedNode.classList.remove("hidden");
           return;
         }
