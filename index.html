@@ -279,6 +279,13 @@
         cursor: pointer;
       }
 
+      .thought img {
+        max-width: 100%;
+        height: auto;
+        display: block;
+        border-radius: 12px;
+      }
+
       .exit-node {
         border: none;
         background: rgba(255, 255, 255, 0.85);
@@ -454,7 +461,7 @@
         <ul id="completedList"></ul>
       </div>
       <div id="snapshotCard" class="thought" role="button" tabindex="0" aria-live="polite">
-        <p id="snapshotText"></p>
+        <div id="snapshotText"></div>
       </div>
     </main>
 
@@ -506,8 +513,25 @@ thoughts: [
         {
           id: "roses",
           title: "9 Roses",
-          status: "pending",
-          thoughts: []
+          status: "available",
+          thoughts: [
+            "Hello VCB.",
+            "There are three parts to this",
+            "1: a simple account of how the events played out in real time",
+            "2: a gallery with BTS and real life photos you can view",
+            "3: the gift box explained with Lord Ishan's own words",
+            "The first part has been made available to you on 01/24/2026.",
+            "cmd: retrieve img 4K dispatch tovisitornode8850 validreq only",
+            "It seems the next parts are still in the main Kingdom and will be dispatched within the next week.",
+            "Given the quality of the photos ",
+            "taken in 4K UHD",
+            "estimated retrieval time will be on/after 1/29/2026",
+            "In the mean time, we hope you enjoy part 1.",
+            "\"this shit is actually hillarious this is totally how I think\""
+          ],
+          imagesPath: "NineRoseComics",
+          imagesCount: 35,
+          closing: "The End "
         }
       ];
 
@@ -564,20 +588,96 @@ thoughts: [
       let snapshotIndex = 0;
       const vbStateKey = "vbNodeState";
       const episodeStateKey = "vbEpisodeState";
-      const activeEpisode = episodes[0];
       let thoughtAnimId = null;
       let thoughtState = null;
 
+      function defaultEpisodeState() {
+        const episodeMap = {};
+        for (const episode of episodes) {
+          episodeMap[episode.id] = { index: 0, completedAt: null, started: false };
+        }
+        return {
+          activeId: episodes[0].id,
+          episodes: episodeMap
+        };
+      }
+
       function loadEpisodeState() {
         try {
-          return JSON.parse(localStorage.getItem(episodeStateKey)) || {
-            episodeId: activeEpisode.id,
-            index: 0,
-            completedAt: null,
-            started: false
-          };
+          const parsed = JSON.parse(localStorage.getItem(episodeStateKey));
+          if (!parsed) {
+            return defaultEpisodeState();
+          }
+          if (parsed.activeId && parsed.episodes) {
+            return parsed;
+          }
+          if (parsed.episodeId) {
+            const nextState = defaultEpisodeState();
+            nextState.activeId = parsed.episodeId;
+            if (!nextState.episodes[parsed.episodeId]) {
+              nextState.episodes[parsed.episodeId] = { index: 0, completedAt: null, started: false };
+            }
+            nextState.episodes[parsed.episodeId] = {
+              ...nextState.episodes[parsed.episodeId],
+              index: parsed.index || 0,
+              completedAt: parsed.completedAt || null,
+              started: parsed.started || false
+            };
+            return nextState;
+          }
+          return defaultEpisodeState();
         } catch {
-          return { episodeId: activeEpisode.id, index: 0, completedAt: null, started: false };
+          return defaultEpisodeState();
+        }
+      }
+
+      function getActiveEpisode(state) {
+        return episodes.find((episode) => episode.id === state.activeId) || episodes[0];
+      }
+
+      function getEpisodeState(state, id) {
+        return state.episodes[id] || { index: 0, completedAt: null, started: false };
+      }
+
+      function saveEpisodeProgress(state, id, progress) {
+        const nextState = {
+          activeId: state.activeId,
+          episodes: {
+            ...state.episodes,
+            [id]: progress
+          }
+        };
+        saveEpisodeState(nextState);
+        return nextState;
+      }
+
+      function getEpisodeItems(episode) {
+        const items = [];
+        for (const thought of episode.thoughts) {
+          items.push({ type: "text", value: thought });
+        }
+        if (episode.imagesCount) {
+          const basePath = episode.imagesPath ? `${episode.imagesPath}/` : "";
+          for (let i = 1; i <= episode.imagesCount; i += 1) {
+            items.push({ type: "image", value: `${basePath}${i}.png` });
+          }
+        }
+        if (episode.closing) {
+          items.push({ type: "text", value: episode.closing });
+        }
+        return items;
+      }
+
+      function preloadEpisodeImages() {
+        for (const episode of episodes) {
+          if (!episode.imagesCount) {
+            continue;
+          }
+          const basePath = episode.imagesPath ? `${episode.imagesPath}/` : "";
+          for (let i = 1; i <= episode.imagesCount; i += 1) {
+            const img = new Image();
+            img.src = `${basePath}${i}.png`;
+          }
         }
       }
 
@@ -590,10 +690,10 @@ thoughts: [
         const state = loadEpisodeState();
         for (const episode of episodes) {
           const li = document.createElement("li");
-          const isActive = episode.id === activeEpisode.id;
-          const isCompleted = isActive && state.completedAt;
+          const progress = getEpisodeState(state, episode.id);
+          const isCompleted = !!progress.completedAt;
           li.textContent = `${episodes.indexOf(episode) + 1}. ${episode.title}`;
-          if (!isActive || episode.status === "pending") {
+          if (episode.status === "pending") {
             li.classList.add("episode-pending");
           }
           if (episode.status === "pending") {
@@ -611,16 +711,22 @@ thoughts: [
             replay.type = "button";
             replay.textContent = "Play again";
             replay.addEventListener("click", () => {
-              const fresh = { episodeId: activeEpisode.id, index: 0, completedAt: null, started: true };
-              snapshotIndex = 0;
-              snapshotCard.classList.remove("hidden");
-              saveEpisodeState(fresh);
-              setSnapshot(0);
-              updateSubheader(fresh);
-              startThoughtMotion();
+              startEpisodeFor(episode.id);
               completedPanel.classList.add("hidden");
             });
             actions.appendChild(replay);
+            li.appendChild(actions);
+          } else if (episode.status !== "pending") {
+            const actions = document.createElement("div");
+            actions.className = "episode-actions";
+            const play = document.createElement("button");
+            play.type = "button";
+            play.textContent = "Play";
+            play.addEventListener("click", () => {
+              startEpisodeFor(episode.id);
+              completedPanel.classList.add("hidden");
+            });
+            actions.appendChild(play);
             li.appendChild(actions);
           }
           completedList.appendChild(li);
@@ -656,19 +762,30 @@ thoughts: [
 
       function setSnapshot(index) {
         const state = loadEpisodeState();
-        const thoughts = activeEpisode.thoughts;
-        snapshotIndex = Math.min(index, thoughts.length - 1);
-        snapshotText.textContent = thoughts[snapshotIndex];
+        const activeEpisode = getActiveEpisode(state);
+        const items = getEpisodeItems(activeEpisode);
+        snapshotIndex = Math.min(index, items.length - 1);
+        const item = items[snapshotIndex];
+        snapshotText.innerHTML = "";
+        if (item.type === "image") {
+          const img = document.createElement("img");
+          img.src = item.value;
+          img.alt = "";
+          img.loading = "eager";
+          snapshotText.appendChild(img);
+        } else {
+          snapshotText.textContent = item.value;
+        }
         positionThought();
-        const updatedState = {
-          episodeId: activeEpisode.id,
+        const progress = getEpisodeState(state, activeEpisode.id);
+        const updatedProgress = {
           index: snapshotIndex,
-          completedAt: state.completedAt,
+          completedAt: progress.completedAt,
           started: true
         };
-        saveEpisodeState(updatedState);
-        localStorage.setItem(vbStateKey, JSON.stringify({ node: "vb", index: snapshotIndex }));
-        updateSubheader(updatedState);
+        const nextState = saveEpisodeProgress(state, activeEpisode.id, updatedProgress);
+        localStorage.setItem(vbStateKey, JSON.stringify({ node: "vb", activeId: state.activeId }));
+        updateSubheader(nextState);
       }
 
       function resetLogin() {
@@ -703,11 +820,13 @@ thoughts: [
         kingdomNode.classList.add("hidden");
         vbNode.classList.remove("hidden");
         const state = loadEpisodeState();
-        snapshotIndex = typeof state.index === "number" ? state.index : 0;
-        if (state.completedAt) {
+        const activeEpisode = getActiveEpisode(state);
+        const progress = getEpisodeState(state, activeEpisode.id);
+        snapshotIndex = typeof progress.index === "number" ? progress.index : 0;
+        if (progress.completedAt) {
           snapshotCard.classList.add("hidden");
           stopThoughtMotion();
-        } else if (state.started) {
+        } else if (progress.started) {
           snapshotCard.classList.remove("hidden");
           setSnapshot(snapshotIndex);
           startThoughtMotion();
@@ -799,7 +918,7 @@ thoughts: [
         loader.classList.remove("hidden");
         playSequence(sequence, intervalMs, () => {
           snapshotIndex = 0;
-          saveEpisodeState({ episodeId: activeEpisode.id, index: 0, completedAt: null, started: false });
+          saveEpisodeState(defaultEpisodeState());
           showVBNode(creatorMatch);
         });
       }
@@ -814,7 +933,6 @@ thoughts: [
         try {
           const parsed = JSON.parse(savedState);
           if (parsed && parsed.node === "vb") {
-            snapshotIndex = typeof parsed.index === "number" ? parsed.index : 0;
             showVBNode(false);
             restored = true;
           }
@@ -826,6 +944,7 @@ thoughts: [
       if (!restored) {
         setSnapshot(0);
       }
+      preloadEpisodeImages();
 
       usernameInput.addEventListener("input", updateEnterVisibility);
       passwordInput.addEventListener("input", updateEnterVisibility);
@@ -837,10 +956,12 @@ thoughts: [
       });
 
       function advanceSnapshot() {
-        const thoughts = activeEpisode.thoughts;
         const state = loadEpisodeState();
-        const lastIndex = thoughts.length - 1;
-        if (state.completedAt) {
+        const activeEpisode = getActiveEpisode(state);
+        const items = getEpisodeItems(activeEpisode);
+        const progress = getEpisodeState(state, activeEpisode.id);
+        const lastIndex = items.length - 1;
+        if (progress.completedAt) {
           snapshotCard.classList.add("hidden");
           updateSubheader(state);
           return;
@@ -852,18 +973,27 @@ thoughts: [
         snapshotCard.classList.remove("fade-in");
         void snapshotCard.offsetWidth;
         snapshotIndex = Math.min(snapshotIndex + 1, lastIndex);
-        snapshotText.textContent = thoughts[snapshotIndex];
+        const item = items[snapshotIndex];
+        snapshotText.innerHTML = "";
+        if (item.type === "image") {
+          const img = document.createElement("img");
+          img.src = item.value;
+          img.alt = "";
+          img.loading = "eager";
+          snapshotText.appendChild(img);
+        } else {
+          snapshotText.textContent = item.value;
+        }
         positionThought();
-        const updatedState = {
-          episodeId: activeEpisode.id,
+        const updatedProgress = {
           index: snapshotIndex,
           completedAt: null,
           started: true
         };
-        saveEpisodeState(updatedState);
-        localStorage.setItem(vbStateKey, JSON.stringify({ node: "vb", index: snapshotIndex }));
+        const nextState = saveEpisodeProgress(state, activeEpisode.id, updatedProgress);
+        localStorage.setItem(vbStateKey, JSON.stringify({ node: "vb", activeId: state.activeId }));
         snapshotCard.classList.add("fade-in");
-        updateSubheader(updatedState);
+        updateSubheader(nextState);
       }
 
       function positionThought() {
@@ -888,18 +1018,25 @@ thoughts: [
       function updateSubheader(state) {
         const left = vbSubheader.querySelector("span");
         const right = vbSubheader.querySelector("div");
-        const pendingEpisode = episodes.find((episode) => episode.status === "pending");
-        const lastIndex = activeEpisode.thoughts.length - 1;
+        const activeEpisode = getActiveEpisode(state);
+        const progress = getEpisodeState(state, activeEpisode.id);
+        const items = getEpisodeItems(activeEpisode);
+        const lastIndex = items.length - 1;
         const atEnd = snapshotIndex >= lastIndex;
-        if (state && !state.completedAt) {
-          if (state.started) {
-            left.textContent = `Currently on: ${activeEpisode.title}`;
-            right.textContent = atEnd ? "Tap to End." : "Tap to continue.";
-            completedNode.classList.add("hidden");
-            completedPanel.classList.add("hidden");
-            return;
-          }
-          left.textContent = `Next Up: ${activeEpisode.title}`;
+        if (progress.started && !progress.completedAt) {
+          left.textContent = `Currently on: ${activeEpisode.title}`;
+          right.textContent = atEnd ? "Tap to End." : "Tap to continue.";
+          completedNode.classList.add("hidden");
+          completedPanel.classList.add("hidden");
+          return;
+        }
+        const nextPlayable = episodes.find((episode) => {
+          const epState = getEpisodeState(state, episode.id);
+          return !epState.completedAt && episode.status !== "pending";
+        });
+        const pendingEpisode = episodes.find((episode) => episode.status === "pending");
+        if (nextPlayable) {
+          left.textContent = `Next Up: ${nextPlayable.title}`;
           right.textContent = "Tap here to start.";
           completedNode.classList.remove("hidden");
           return;
@@ -917,37 +1054,58 @@ thoughts: [
 
       function endEpisode() {
         const state = loadEpisodeState();
-        if (state.completedAt) {
+        const activeEpisode = getActiveEpisode(state);
+        const items = getEpisodeItems(activeEpisode);
+        const progress = getEpisodeState(state, activeEpisode.id);
+        if (progress.completedAt) {
           return;
         }
-        const thoughts = activeEpisode.thoughts;
-        if (snapshotIndex < thoughts.length - 1) {
+        if (snapshotIndex < items.length - 1) {
           return;
         }
-        const updatedState = {
-          episodeId: activeEpisode.id,
-          index: snapshotIndex,
-          completedAt: true,
-          started: true
-        };
-        saveEpisodeState(updatedState);
+        const updatedProgress = { index: snapshotIndex, completedAt: true, started: true };
+        const nextState = saveEpisodeProgress(state, activeEpisode.id, updatedProgress);
         snapshotCard.classList.add("hidden");
         stopThoughtMotion();
-        updateSubheader(updatedState);
+        updateSubheader(nextState);
       }
 
       function startEpisode() {
         const state = loadEpisodeState();
-        if (state.completedAt) {
+        const activeEpisode = getActiveEpisode(state);
+        const progress = getEpisodeState(state, activeEpisode.id);
+        if (progress.completedAt) {
           return;
         }
-        const fresh = { episodeId: activeEpisode.id, index: 0, completedAt: null, started: true };
+        const fresh = { index: 0, completedAt: null, started: true };
         snapshotIndex = 0;
         snapshotCard.classList.remove("hidden");
-        saveEpisodeState(fresh);
+        const nextState = saveEpisodeProgress(state, activeEpisode.id, fresh);
         setSnapshot(0);
         startThoughtMotion();
-        updateSubheader(fresh);
+        updateSubheader(nextState);
+      }
+
+      function startEpisodeFor(id) {
+        const state = loadEpisodeState();
+        const nextState = {
+          activeId: id,
+          episodes: state.episodes
+        };
+        const fresh = { index: 0, completedAt: null, started: true };
+        snapshotIndex = 0;
+        snapshotCard.classList.remove("hidden");
+        const updatedState = saveEpisodeProgress(nextState, id, fresh);
+        setSnapshot(0);
+        startThoughtMotion();
+        updateSubheader(updatedState);
+      }
+
+      function getNextPlayableEpisode(state) {
+        return episodes.find((episode) => {
+          const epState = getEpisodeState(state, episode.id);
+          return !epState.completedAt && episode.status !== "pending";
+        });
       }
 
       function getThoughtBounds() {
@@ -1008,12 +1166,15 @@ thoughts: [
 
       vbSubheader.addEventListener("click", (event) => {
         const state = loadEpisodeState();
-        if (state.started && !state.completedAt) {
+        const activeEpisode = getActiveEpisode(state);
+        const progress = getEpisodeState(state, activeEpisode.id);
+        if (progress.started && !progress.completedAt) {
           endEpisode();
           return;
         }
-        if (!state.completedAt) {
-          startEpisode();
+        const nextPlayable = getNextPlayableEpisode(state);
+        if (nextPlayable) {
+          startEpisodeFor(nextPlayable.id);
         }
       });
 
