@@ -2,7 +2,7 @@
 <html lang="en">
   <head>
     <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
     <title>Kingdom of Li</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -33,6 +33,7 @@
         text-align: center;
         padding: 24px;
         min-height: 100svh;
+        overflow: hidden;
       }
 
       @supports (height: 100svh) {
@@ -52,8 +53,18 @@
       }
 
       body.vb {
-        background: linear-gradient(135deg, #f7b0d8 0%, #f79cc9 45%, #f3a0c4 100%),
-          repeating-linear-gradient(115deg, rgba(0, 0, 0, 0.15) 0px, rgba(0, 0, 0, 0.15) 6px, transparent 6px, transparent 18px);
+        background: radial-gradient(circle at top, rgba(255, 255, 255, 0.65), transparent 55%),
+          linear-gradient(135deg, #f9c5de 0%, #f7a7cc 45%, #f3a0c4 100%),
+          repeating-linear-gradient(115deg, rgba(255, 255, 255, 0.35) 0px, rgba(255, 255, 255, 0.35) 8px, transparent 8px, transparent 22px);
+      }
+
+      body.vb.playing #completedPanel {
+        display: none !important;
+      }
+
+      body.vb.playing #countdownPanel,
+      body.vb.playing #logoPanel {
+        display: none !important;
       }
 
       @keyframes drift {
@@ -220,7 +231,7 @@
       }
 
       .hidden {
-        display: none;
+        display: none !important;
       }
 
       .snapshot {
@@ -308,27 +319,6 @@
         box-shadow: 0 6px 14px rgba(0, 0, 0, 0.12);
       }
 
-      .vb-header {
-        position: fixed;
-        top: 12px;
-        left: 12px;
-        right: 12px;
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-        gap: 10px;
-        padding: 10px 12px;
-        border-radius: 18px;
-        background: linear-gradient(120deg, rgba(255, 214, 230, 0.85), rgba(255, 245, 250, 0.9));
-        box-shadow: 0 10px 24px rgba(0, 0, 0, 0.15);
-        z-index: 2;
-      }
-
-      .vb-actions {
-        display: flex;
-        gap: 10px;
-      }
-
       .vb-subheader {
         position: fixed;
         top: 70px;
@@ -345,6 +335,7 @@
         font-size: 14px;
         box-shadow: 0 8px 18px rgba(0, 0, 0, 0.12);
         z-index: 2;
+        display: none;
       }
 
       .vb-subheader span {
@@ -353,10 +344,10 @@
 
       .completed-panel {
         position: fixed;
-        top: 120px;
+        top: 20px;
         left: 12px;
         right: 12px;
-        max-height: min(70vh, 420px);
+        max-height: 45vh;
         overflow: auto;
         padding: 14px 16px;
         background: rgba(255, 255, 255, 0.9);
@@ -364,9 +355,158 @@
         box-shadow: 0 10px 24px rgba(0, 0, 0, 0.18);
       }
 
+      .stop-playback {
+        position: fixed;
+        top: 18px;
+        right: 16px;
+        border: none;
+        background: rgba(58, 123, 213, 0.9);
+        color: white;
+        padding: 8px 14px;
+        border-radius: 999px;
+        font-size: 13px;
+        cursor: pointer;
+        box-shadow: 0 10px 24px rgba(0, 0, 0, 0.15);
+        z-index: 4;
+      }
+
+      .roses-panel {
+        position: fixed;
+        top: 12px;
+        bottom: 12px;
+        left: 12px;
+        right: 12px;
+        display: grid;
+        grid-template-rows: 0 1fr auto;
+        gap: 14px;
+        padding: 18px;
+        background: linear-gradient(180deg, rgba(255, 232, 244, 0.95) 0%, rgba(255, 248, 252, 0.98) 100%);
+        border-radius: 22px;
+        box-shadow: 0 18px 32px rgba(180, 14, 26, 0.12), 0 8px 18px rgba(0, 0, 0, 0.12);
+        z-index: 3;
+      }
+
+      .roses-header {
+        display: flex;
+        align-items: center;
+        justify-content: flex-start;
+        gap: 10px;
+        height: 0;
+        overflow: visible;
+      }
+
+      .roses-close {
+        display: none;
+      }
+
+      .roses-title {
+        font-size: 13px;
+        font-weight: 600;
+        color: rgba(0, 0, 0, 0.6);
+        text-align: center;
+        flex: 1;
+      }
+
+      .roses-body {
+        display: grid;
+        grid-template-rows: 1fr auto;
+        align-items: center;
+        gap: 12px;
+        overflow: hidden;
+        min-height: 0;
+      }
+
+      .roses-polaroid {
+        display: inline-block;
+        padding: 8px;
+        background: rgba(255, 255, 255, 0.92);
+        border-radius: 16px;
+        border: 1px solid rgba(243, 160, 196, 0.35);
+        box-shadow: 0 0 22px rgba(243, 160, 196, 0.35), 0 10px 20px rgba(0, 0, 0, 0.12);
+        justify-self: center;
+        align-self: center;
+      }
+
+      .roses-image {
+        width: auto;
+        height: auto;
+        max-height: 100%;
+        max-width: 100%;
+        object-fit: contain;
+        border-radius: 12px;
+        background: transparent;
+        justify-self: center;
+        align-self: center;
+        display: block;
+      }
+
+      .roses-note {
+        font-size: 14px;
+        line-height: 1.45;
+        color: rgba(120, 24, 64, 0.78);
+        background: rgba(255, 233, 243, 0.85);
+        border-radius: 16px;
+        padding: 14px 16px;
+        border: 1px solid rgba(243, 160, 196, 0.35);
+        max-width: min(560px, 92%);
+        text-align: center;
+        justify-self: center;
+        align-self: center;
+      }
+
+      .roses-nav {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        gap: 18px;
+        margin-top: auto;
+      }
+
+      .roses-counter {
+        font-size: 12px;
+        color: rgba(120, 24, 64, 0.55);
+        letter-spacing: 1px;
+      }
+
+      .roses-prev,
+      .roses-next,
+      .roses-back {
+        border: none;
+        background: rgba(255, 233, 243, 0.8);
+        color: rgba(120, 24, 64, 0.7);
+        padding: 6px 12px;
+        border-radius: 999px;
+        font-size: 22px;
+        cursor: pointer;
+        box-shadow: 0 8px 16px rgba(243, 160, 196, 0.35);
+      }
+
+      .roses-back {
+        font-size: 14px;
+        color: rgba(0, 0, 0, 0.55);
+      }
+
+      .roses-back-top {
+        position: absolute;
+        top: 6px;
+        left: 10px;
+        border: none;
+        background: transparent;
+        color: rgba(0, 0, 0, 0.55);
+        padding: 2px 4px;
+        font-size: 18px;
+        cursor: pointer;
+      }
+
       .completed-panel h2 {
         margin: 0 0 10px;
         font-size: 18px;
+      }
+
+      .completed-panel .panel-divider {
+        height: 1px;
+        background: rgba(0, 0, 0, 0.12);
+        margin: 6px 0 12px;
       }
 
       .completed-panel ul {
@@ -375,6 +515,67 @@
         margin: 0;
         display: grid;
         gap: 10px;
+      }
+
+      .completed-panel .countdown {
+        margin-top: 14px;
+        font-size: 13px;
+        color: rgba(0, 0, 0, 0.6);
+        text-align: center;
+      }
+
+      .countdown-panel {
+        position: fixed;
+        left: 12px;
+        right: 12px;
+        padding: 12px 14px;
+        background: rgba(255, 255, 255, 0.9);
+        border-radius: 16px;
+        box-shadow: 0 10px 24px rgba(0, 0, 0, 0.12);
+        font-size: 13px;
+        color: rgba(0, 0, 0, 0.6);
+        text-align: center;
+      }
+
+      .countdown-panel .countdown-time {
+        margin-top: 6px;
+        font-size: 20px;
+        font-weight: 600;
+        color: #b40e1a;
+        letter-spacing: 1px;
+      }
+
+      .logo-panel {
+        position: fixed;
+        top: 50%;
+        bottom: 12px;
+        left: 12px;
+        right: 12px;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        gap: 8px;
+        padding: 0;
+      }
+
+      .logo-panel img {
+        max-width: 220px;
+        width: 60%;
+        height: auto;
+        opacity: 1;
+        filter: drop-shadow(0 12px 24px rgba(243, 160, 196, 0.35));
+      }
+
+      .leave-button {
+        border: none;
+        background: rgba(255, 233, 243, 0.85);
+        color: rgba(120, 24, 64, 0.7);
+        padding: 8px 18px;
+        border-radius: 999px;
+        font-size: 13px;
+        cursor: pointer;
+        box-shadow: 0 10px 20px rgba(243, 160, 196, 0.25);
       }
 
       .completed-panel li {
@@ -444,21 +645,40 @@
     </main>
 
     <main id="vbNode" class="hidden">
-      <div class="vb-header">
-        <div class="vb-actions">
-          <button id="completedNode" class="completed-node" type="button">Artifacts</button>
-        </div>
-        <div class="vb-actions">
-          <button id="exitNode" class="exit-node" type="button">Exit</button>
-        </div>
-      </div>
+      <button id="stopPlayback" class="stop-playback hidden" type="button">Stop</button>
       <div class="vb-subheader">
         <span>Next Up: Intro to Kingdom</span>
         <div>Tap here to start.</div>
       </div>
-      <div id="completedPanel" class="completed-panel hidden" role="dialog" aria-live="polite">
-        <h2>Artifacts</h2>
+      <div id="completedPanel" class="completed-panel" role="dialog" aria-live="polite">
+        <h2>Artifacts for "Princess V"</h2>
+        <div class="panel-divider" aria-hidden="true"></div>
         <ul id="completedList"></ul>
+      </div>
+      <div id="countdownPanel" class="countdown-panel">
+        <div>Time remaining before this node is scheduled to be deleted:</div>
+        <div id="countdownTime" class="countdown-time">--</div>
+      </div>
+      <div id="logoPanel" class="logo-panel">
+        <img src="Logo.png" alt="Logo">
+        <button id="leaveButton" class="leave-button" type="button">Leave this node</button>
+      </div>
+      <div id="rosesPanel" class="roses-panel hidden" role="dialog" aria-live="polite">
+        <div class="roses-header">
+          <button id="rosesBackTop" class="roses-back-top" type="button">×</button>
+          <div id="rosesTitle" class="roses-title"></div>
+        </div>
+        <div class="roses-body">
+          <div class="roses-polaroid">
+            <img id="rosesImage" class="roses-image" src="NineRoseComics/1.png" alt="Image 1">
+          </div>
+          <div id="rosesNote" class="roses-note">Image 1 — (poem/notes here)</div>
+        </div>
+        <div class="roses-nav">
+          <button id="rosesPrev" class="roses-prev" type="button">‹</button>
+          <div id="rosesCounter" class="roses-counter">1/12</div>
+          <button id="rosesNext" class="roses-next" type="button">›</button>
+        </div>
       </div>
       <div id="snapshotCard" class="thought" role="button" tabindex="0" aria-live="polite">
         <div id="snapshotText"></div>
@@ -477,13 +697,87 @@
       const loaderGraphic = document.getElementById("loaderGraphic");
       const kingdomNode = document.getElementById("kingdomNode");
       const vbNode = document.getElementById("vbNode");
-      const exitNode = document.getElementById("exitNode");
-      const completedNode = document.getElementById("completedNode");
       const completedPanel = document.getElementById("completedPanel");
       const completedList = document.getElementById("completedList");
+      const stopPlayback = document.getElementById("stopPlayback");
       const snapshotCard = document.getElementById("snapshotCard");
       const snapshotText = document.getElementById("snapshotText");
       const vbSubheader = document.querySelector(".vb-subheader");
+      const rosesPanel = document.getElementById("rosesPanel");
+      const rosesNext = document.getElementById("rosesNext");
+      const rosesPrev = document.getElementById("rosesPrev");
+      const rosesBackTop = document.getElementById("rosesBackTop");
+      const rosesCounter = document.getElementById("rosesCounter");
+      const rosesImage = document.getElementById("rosesImage");
+      const rosesNote = document.getElementById("rosesNote");
+      const rosesTitle = document.getElementById("rosesTitle");
+      const countdownPanel = document.getElementById("countdownPanel");
+      const countdownTime = document.getElementById("countdownTime");
+      const leaveButton = document.getElementById("leaveButton");
+
+      const finaleNotes = {
+        1: "1/48 \"so of course since I am the smartest person in the world everyday I wake up with very complex thoughts. I already figured out special relatively and tbh even Einstein hardest formulas were so not impressive\"",
+        2: "2/48 \"so I had an even better idea! yk the statement where ppl are like 'they just woke up and chose violence'? my idea was like the opposite of that.\"",
+        3: "3/48 \"so the first thing I did was I drove over to Target. In the chance I did see you in the afternoon then the work would have been done\"",
+        4: "4/48 \"of course the flowers were the first thing I saw walking in. I don't think I have ever bought flowers that are not roses but I thought maybe you would like sunflowers.\"",
+        5: "5/48 \"but the roses were cool because they looked super fresh and they had a pinkish tone to them. personally I like roses especially giving them\"",
+        6: "6/48 \"I spent considerable time in the flowers section pondering which one you would like since I didn't wanna get you something you'd hate\"",
+        7: "7/48 \"In fact, I spent enough time where I had to leave to go get the vase because I didn't want to be seen thinking about getting flowers for some reason\"",
+        8: "8/48 \"But I figured out how to solve my dilemna\"",
+        9: "9/48 \"Instead of thinking of what you would like, I thought about what I would feel most confident giving! Since you liked the standing piece last time I thought 'hmm yea roses are my thing'\"",
+        10: "10/48 \"roses it is\"",
+        11: "11/48 \"ta-da! yea this looked perfect to me\"",
+        12: "12/48 \"but after doing research turns out I've been wrong my entire life. apparently you're suppsoed to take flowers off the wrappers and wrapping is only for transport\"",
+        13: "13/48 \"(notes here)\"",
+        14: "14/48 \"(notes here)\"",
+        15: "15/48 \"(notes here)\"",
+        16: "16/48 \"(notes here)\"",
+        17: "17/48 \"(notes here)\"",
+        18: "18/48 \"no comment...\"",
+        19: "19/48 \"this photo is actually an attempt at me being humble by not putting on as much weight as I can do (also besides the crown this photo does not do me much justice at all)\"",
+        20: "20/48 \"as each day passed the flowers got prettier and prettier\"",
+        21: "21/48 \"but I was unsure if I would be able to give them to you before they wilted, and wasn't sure if you even wanted to recieve them\"",
+        22: "22/48 \"I could bring them and try to give them to you but you'd freak out. Or I would have gone to the gym and it woulda been some random weird person that wasn't you\"",
+        23: "23/48 \"but as I was looking at the flowers I happened to see a box with a potatoe inside. ('I couldn't find my spare mustaches so I was unable to complete this project')\"",
+        24: "24/48 \"but now I had an even better idea. No way I was gonna give you a gift that initially made you uncomfortable so I had to create a new gift\"",
+        25: "25/48 \"on the quest for pink I went\"",
+        26: "26/48 \"after cutting up one rose I was sure that this would work\"",
+        27: "27/48 \"though it took a bit longer than I thought\"",
+        28: "28/48 \"i'll spare you the details since our talk when I gave you this covered it all but I left the pink box inside to express whatever I wnated to \"",
+        29: "29/48 \"(notes here)\"",
+        30: "30/48 \"(notes here)\"",
+        31: "31/48 \"(notes here)\"",
+        32: "32/48 \"(notes here)\"",
+        33: "33/48 \"(notes here)\"",
+        34: "34/48 \"(notes here)\"",
+        35: "35/48 \"(notes here)\"",
+        36: "36/48 \"(notes here)\"",
+        37: "37/48 \"(notes here)\"",
+        38: "38/48 \"(notes here)\"",
+        39: "39/48 \"(notes here)\"",
+        40: "40/48 \"(notes here)\"",
+        41: "41/48 \"(notes here)\"",
+        42: "42/48 \"(notes here)\"",
+        43: "43/48 \"(notes here)\"",
+        44: "44/48 \"(notes here)\"",
+        45: "45/48 \"(notes here)\"",
+        46: "46/48 \"(notes here)\"",
+        47: "47/48 \"(notes here)\"",
+        48: "48/48 \"(notes here)\""
+      };
+
+      function buildFinaleItems() {
+        const items = [];
+        const basePath = "NineRosesFinale";
+        for (let i = 1; i <= 48; i += 1) {
+          items.push({
+            base: `${basePath}/_${i}`,
+            label: `Image ${i}`,
+            note: finaleNotes[i] || `Image ${i} — (poem/notes here)`
+          });
+        }
+        return items;
+      }
 
       const episodes = [
         {
@@ -510,28 +804,13 @@ thoughts: [
 
 
         },
+        // 9 Roses (Part 1) is hidden for now.
         {
-          id: "roses",
-          title: "9 Roses",
+          id: "roses23",
+          title: "9 roses (finale)",
           status: "available",
-          thoughts: [
-            "Hello VCB.",
-            "There are three parts to this",
-            "1: a simple account of how the events played out in real time",
-            "2: a gallery with BTS and real life photos you can view",
-            "3: the gift box explained with Lord Ishan's own words",
-            "The first part has been made available to you on 01/24/2026.",
-            "cmd: retrieve img 4K dispatch tovisitornode8850 validreq only",
-            "It seems the next parts are still in the main Kingdom and will be dispatched within the next week.",
-            "Given the quality of the photos ",
-            "taken in 4K UHD",
-            "estimated retrieval time will be on/after 1/29/2026",
-            "In the mean time, we hope you enjoy part 1.",
-            "\"this shit is actually hillarious this is totally how I think\""
-          ],
-          imagesPath: "NineRoseComics",
-          imagesCount: 35,
-          closing: "The End "
+          mode: "staticGallery",
+          galleryItems: buildFinaleItems()
         }
       ];
 
@@ -590,6 +869,8 @@ thoughts: [
       const episodeStateKey = "vbEpisodeState";
       let thoughtAnimId = null;
       let thoughtState = null;
+      let rosesIndex = 0;
+      let isPlaying = false;
 
       function defaultEpisodeState() {
         const episodeMap = {};
@@ -652,6 +933,9 @@ thoughts: [
       }
 
       function getEpisodeItems(episode) {
+        if (episode.mode === "staticGallery") {
+          return [];
+        }
         const items = [];
         for (const thought of episode.thoughts) {
           items.push({ type: "text", value: thought });
@@ -681,6 +965,21 @@ thoughts: [
         }
       }
 
+      let finalePreloaded = false;
+      function preloadFinaleImages() {
+        if (finalePreloaded) {
+          return;
+        }
+        finalePreloaded = true;
+        const items = buildFinaleItems();
+        for (const item of items) {
+          const png = new Image();
+          png.src = `${item.base}.png`;
+          const jpeg = new Image();
+          jpeg.src = `${item.base}.jpeg`;
+        }
+      }
+
       function saveEpisodeState(state) {
         localStorage.setItem(episodeStateKey, JSON.stringify(state));
       }
@@ -690,47 +989,36 @@ thoughts: [
         const state = loadEpisodeState();
         for (const episode of episodes) {
           const li = document.createElement("li");
-          const progress = getEpisodeState(state, episode.id);
-          const isCompleted = !!progress.completedAt;
           li.textContent = `${episodes.indexOf(episode) + 1}. ${episode.title}`;
-          if (episode.status === "pending") {
-            li.classList.add("episode-pending");
-          }
-          if (episode.status === "pending") {
-            const pending = document.createElement("small");
-            pending.textContent = "Release Time Updated: Today at 11pm";
-            li.appendChild(pending);
-          }
-          if (isCompleted) {
-            const done = document.createElement("small");
-            done.textContent = "Completed";
-            li.appendChild(done);
-            const actions = document.createElement("div");
-            actions.className = "episode-actions";
-            const replay = document.createElement("button");
-            replay.type = "button";
-            replay.textContent = "Play again";
-            replay.addEventListener("click", () => {
-              startEpisodeFor(episode.id);
-              completedPanel.classList.add("hidden");
-            });
-            actions.appendChild(replay);
-            li.appendChild(actions);
-          } else if (episode.status !== "pending") {
-            const actions = document.createElement("div");
-            actions.className = "episode-actions";
-            const play = document.createElement("button");
-            play.type = "button";
-            play.textContent = "Play";
-            play.addEventListener("click", () => {
-              startEpisodeFor(episode.id);
-              completedPanel.classList.add("hidden");
-            });
-            actions.appendChild(play);
-            li.appendChild(actions);
-          }
+          const actions = document.createElement("div");
+          actions.className = "episode-actions";
+          const play = document.createElement("button");
+          play.type = "button";
+          play.textContent = "Play";
+          play.disabled = isPlaying;
+          play.addEventListener("click", () => {
+            startEpisodeFor(episode.id);
+          });
+          actions.appendChild(play);
+          li.appendChild(actions);
           completedList.appendChild(li);
         }
+      }
+
+      function updateCountdown() {
+        const target = new Date("2026-02-15T00:00:00");
+        const now = new Date();
+        let diff = target - now;
+        if (diff <= 0) {
+          countdownTime.textContent = "0d 0h 0m 0s";
+          return;
+        }
+        const totalSeconds = Math.floor(diff / 1000);
+        const days = Math.floor(totalSeconds / 86400);
+        const hours = Math.floor((totalSeconds % 86400) / 3600);
+        const minutes = Math.floor((totalSeconds % 3600) / 60);
+        const seconds = totalSeconds % 60;
+        countdownTime.textContent = `${days}d ${hours}h ${minutes}m ${seconds}s`;
       }
 
       function getDeviceType() {
@@ -808,9 +1096,9 @@ thoughts: [
         document.body.classList.add("kingdom");
         kingdomNode.classList.remove("hidden");
         vbNode.classList.add("hidden");
+        rosesPanel.classList.add("hidden");
         resetLogin();
         localStorage.removeItem(vbStateKey);
-        completedPanel.classList.add("hidden");
         stopThoughtMotion();
       }
 
@@ -819,11 +1107,17 @@ thoughts: [
         document.body.classList.add("vb");
         kingdomNode.classList.add("hidden");
         vbNode.classList.remove("hidden");
+        rosesPanel.classList.add("hidden");
+        renderEpisodes();
         const state = loadEpisodeState();
         const activeEpisode = getActiveEpisode(state);
         const progress = getEpisodeState(state, activeEpisode.id);
+        localStorage.setItem(vbStateKey, JSON.stringify({ node: "vb", activeId: state.activeId }));
         snapshotIndex = typeof progress.index === "number" ? progress.index : 0;
-        if (progress.completedAt) {
+        if (activeEpisode.mode === "staticGallery") {
+          snapshotCard.classList.add("hidden");
+          stopThoughtMotion();
+        } else if (progress.completedAt) {
           snapshotCard.classList.add("hidden");
           stopThoughtMotion();
         } else if (progress.started) {
@@ -835,6 +1129,9 @@ thoughts: [
         }
         updateSubheader(state);
         history.pushState({ node: "vb" }, "", "#vb");
+        const artifactsRect = completedPanel.getBoundingClientRect();
+        const countdownTop = Math.round(artifactsRect.bottom + 12);
+        countdownPanel.style.top = `${countdownTop}px`;
       }
 
       function typeName(text, delayMs = 0) {
@@ -942,9 +1239,16 @@ thoughts: [
       }
       updateEnterVisibility();
       if (!restored) {
-        setSnapshot(0);
+        snapshotCard.classList.add("hidden");
       }
       preloadEpisodeImages();
+      updateCountdown();
+      setInterval(updateCountdown, 1000);
+
+      leaveButton.addEventListener("click", () => {
+        history.pushState({ node: "kingdom" }, "", window.location.pathname + window.location.search);
+        showKingdom();
+      });
 
       usernameInput.addEventListener("input", updateEnterVisibility);
       passwordInput.addEventListener("input", updateEnterVisibility);
@@ -1020,36 +1324,84 @@ thoughts: [
         const right = vbSubheader.querySelector("div");
         const activeEpisode = getActiveEpisode(state);
         const progress = getEpisodeState(state, activeEpisode.id);
+        if (activeEpisode.mode === "staticGallery") {
+          left.textContent = "All Artifacts Have Been Released!";
+          right.textContent = "";
+          return;
+        }
         const items = getEpisodeItems(activeEpisode);
         const lastIndex = items.length - 1;
-        const atEnd = snapshotIndex >= lastIndex;
         if (progress.started && !progress.completedAt) {
-          left.textContent = `Currently on: ${activeEpisode.title}`;
-          right.textContent = atEnd ? "Tap to End." : "Tap to continue.";
-          completedNode.classList.add("hidden");
-          completedPanel.classList.add("hidden");
+          left.textContent = "";
+          right.textContent = "";
           return;
         }
-        const nextPlayable = episodes.find((episode) => {
-          const epState = getEpisodeState(state, episode.id);
-          return !epState.completedAt && episode.status !== "pending";
-        });
-        const pendingEpisode = episodes.find((episode) => episode.status === "pending");
-        if (nextPlayable) {
-          left.textContent = `Next Up: ${nextPlayable.title}`;
-          right.textContent = "Tap here to start.";
-          completedNode.classList.remove("hidden");
+        left.textContent = "All artifacts unlocked";
+        right.textContent = "Tap Artifacts to play.";
+      }
+
+      function startPlayback(showStop = true) {
+        isPlaying = true;
+        document.body.classList.add("playing");
+        completedPanel.classList.add("hidden");
+        stopPlayback.classList.toggle("hidden", !showStop);
+        renderEpisodes();
+      }
+
+      function stopPlaybackNow() {
+        isPlaying = false;
+        document.body.classList.remove("playing");
+        completedPanel.classList.remove("hidden");
+        stopPlayback.classList.add("hidden");
+        renderEpisodes();
+      }
+
+      function setRosesPanelItem(episode) {
+        const items = episode.galleryItems || [];
+        if (!items.length) {
           return;
         }
-        if (pendingEpisode) {
-          left.textContent = `Next Up: ${pendingEpisode.title}`;
-          right.textContent = "Release Time Updated: Today at 11pm";
-          completedNode.classList.remove("hidden");
-          return;
+        const item = items[rosesIndex];
+        rosesTitle.textContent = "";
+        rosesImage.onerror = null;
+        rosesImage.dataset.ext = "png";
+        rosesImage.onerror = () => {
+          if (rosesImage.dataset.ext === "png") {
+            rosesImage.dataset.ext = "jpeg";
+            rosesImage.src = `${item.base}.jpeg`;
+          }
+        };
+        rosesImage.src = `${item.base}.png`;
+        rosesImage.alt = item.label;
+        rosesNote.textContent = item.note;
+        rosesCounter.textContent = `${rosesIndex + 1}/${items.length}`;
+        rosesPrev.disabled = rosesIndex === 0;
+        rosesNext.disabled = rosesIndex >= items.length - 1;
+      }
+
+      function openRosesPanel(episode) {
+        rosesIndex = 0;
+        document.body.classList.add("playing");
+        rosesPanel.classList.remove("hidden");
+        snapshotCard.classList.add("hidden");
+        stopThoughtMotion();
+        startPlayback(false);
+        preloadFinaleImages();
+        setRosesPanelItem(episode);
+      }
+
+      function closeRosesPanel() {
+        rosesPanel.classList.add("hidden");
+        document.body.classList.remove("playing");
+        const state = loadEpisodeState();
+        const activeEpisode = getActiveEpisode(state);
+        const progress = getEpisodeState(state, activeEpisode.id);
+        if (activeEpisode.mode !== "staticGallery" && progress.started && !progress.completedAt) {
+          snapshotCard.classList.remove("hidden");
+          setSnapshot(snapshotIndex);
+          startThoughtMotion();
         }
-        left.textContent = "Up to date";
-        right.textContent = "";
-        completedNode.classList.remove("hidden");
+        stopPlaybackNow();
       }
 
       function endEpisode() {
@@ -1077,6 +1429,13 @@ thoughts: [
         if (progress.completedAt) {
           return;
         }
+        if (activeEpisode.mode === "staticGallery") {
+          const fresh = { index: 0, completedAt: null, started: true };
+          saveEpisodeProgress(state, activeEpisode.id, fresh);
+          openRosesPanel(activeEpisode);
+          updateSubheader(loadEpisodeState());
+          return;
+        }
         const fresh = { index: 0, completedAt: null, started: true };
         snapshotIndex = 0;
         snapshotCard.classList.remove("hidden");
@@ -1092,20 +1451,20 @@ thoughts: [
           activeId: id,
           episodes: state.episodes
         };
+        const activeEpisode = episodes.find((episode) => episode.id === id);
         const fresh = { index: 0, completedAt: null, started: true };
         snapshotIndex = 0;
-        snapshotCard.classList.remove("hidden");
         const updatedState = saveEpisodeProgress(nextState, id, fresh);
+        if (activeEpisode && activeEpisode.mode === "staticGallery") {
+          openRosesPanel(activeEpisode);
+          updateSubheader(updatedState);
+          return;
+        }
+        startPlayback();
+        snapshotCard.classList.remove("hidden");
         setSnapshot(0);
         startThoughtMotion();
         updateSubheader(updatedState);
-      }
-
-      function getNextPlayableEpisode(state) {
-        return episodes.find((episode) => {
-          const epState = getEpisodeState(state, episode.id);
-          return !epState.completedAt && episode.status !== "pending";
-        });
       }
 
       function getThoughtBounds() {
@@ -1164,28 +1523,67 @@ thoughts: [
         }
       });
 
-      vbSubheader.addEventListener("click", (event) => {
+      rosesPrev.addEventListener("click", () => {
+        const state = loadEpisodeState();
+        const activeEpisode = getActiveEpisode(state);
+        if (!activeEpisode || activeEpisode.mode !== "staticGallery") {
+          return;
+        }
+        if (rosesIndex <= 0) {
+          return;
+        }
+        rosesIndex -= 1;
+        setRosesPanelItem(activeEpisode);
+      });
+
+      rosesBackTop.addEventListener("click", () => {
+        closeRosesPanel();
+      });
+
+      stopPlayback.addEventListener("click", () => {
         const state = loadEpisodeState();
         const activeEpisode = getActiveEpisode(state);
         const progress = getEpisodeState(state, activeEpisode.id);
-        if (progress.started && !progress.completedAt) {
-          endEpisode();
+        if (activeEpisode.mode === "staticGallery") {
+          rosesPanel.classList.add("hidden");
+        } else {
+          snapshotCard.classList.add("hidden");
+          stopThoughtMotion();
+        }
+        const updatedProgress = {
+          index: progress.index || snapshotIndex,
+          completedAt: progress.completedAt || null,
+          started: false
+        };
+        const nextState = saveEpisodeProgress(state, activeEpisode.id, updatedProgress);
+        updateSubheader(nextState);
+        stopPlaybackNow();
+      });
+
+      rosesNext.addEventListener("click", () => {
+        const state = loadEpisodeState();
+        const activeEpisode = getActiveEpisode(state);
+        if (!activeEpisode || activeEpisode.mode !== "staticGallery") {
           return;
         }
-        const nextPlayable = getNextPlayableEpisode(state);
-        if (nextPlayable) {
-          startEpisodeFor(nextPlayable.id);
+        const items = activeEpisode.galleryItems || [];
+        if (!items.length) {
+          return;
         }
-      });
-
-      completedNode.addEventListener("click", () => {
-        completedPanel.classList.toggle("hidden");
-        renderEpisodes();
-      });
-
-      exitNode.addEventListener("click", () => {
-        history.pushState({ node: "kingdom" }, "", window.location.pathname + window.location.search);
-        showKingdom();
+        if (rosesIndex >= items.length - 1) {
+          return;
+        }
+        rosesIndex += 1;
+        setRosesPanelItem(activeEpisode);
+        if (rosesIndex >= items.length - 1) {
+          const updatedProgress = {
+            index: 0,
+            completedAt: new Date().toISOString(),
+            started: true
+          };
+          const nextState = saveEpisodeProgress(state, activeEpisode.id, updatedProgress);
+          updateSubheader(nextState);
+        }
       });
 
 
