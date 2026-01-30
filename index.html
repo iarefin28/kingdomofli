@@ -545,6 +545,27 @@
         letter-spacing: 1px;
       }
 
+      .countdown-panel .countdown-complete {
+        display: flex;
+        align-items: baseline;
+        justify-content: center;
+        gap: 6px;
+        margin-bottom: 6px;
+      }
+
+      .countdown-panel .countdown-100 {
+        font-size: 20px;
+        font-weight: 600;
+        color: #1d8b49;
+        letter-spacing: 1px;
+      }
+
+      .countdown-panel .countdown-complete-text,
+      .countdown-panel .countdown-label {
+        font-size: 13px;
+        color: rgba(0, 0, 0, 0.6);
+      }
+
       .logo-panel {
         position: fixed;
         top: 50%;
@@ -656,7 +677,11 @@
         <ul id="completedList"></ul>
       </div>
       <div id="countdownPanel" class="countdown-panel">
-        <div>Time remaining before this node is scheduled to be deleted:</div>
+        <div class="countdown-complete">
+          <span class="countdown-100">100%</span>
+          <span class="countdown-complete-text">Completed as of 10:22PM on 01/29/2026.</span>
+        </div>
+        <div class="countdown-label">Time remaining before this node is scheduled to be deleted:</div>
         <div id="countdownTime" class="countdown-time">--</div>
       </div>
       <div id="logoPanel" class="logo-panel">
