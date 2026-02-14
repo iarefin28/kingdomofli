@@ -537,33 +537,13 @@
         text-align: center;
       }
 
-      .countdown-panel .countdown-time {
-        margin-top: 6px;
-        font-size: 20px;
+      .countdown-panel .countdown-message {
+        margin: 0;
+        font-size: 16px;
         font-weight: 600;
         color: #b40e1a;
-        letter-spacing: 1px;
-      }
-
-      .countdown-panel .countdown-complete {
-        display: flex;
-        align-items: baseline;
-        justify-content: center;
-        gap: 6px;
-        margin-bottom: 6px;
-      }
-
-      .countdown-panel .countdown-100 {
-        font-size: 20px;
-        font-weight: 600;
-        color: #1d8b49;
-        letter-spacing: 1px;
-      }
-
-      .countdown-panel .countdown-complete-text,
-      .countdown-panel .countdown-label {
-        font-size: 13px;
-        color: rgba(0, 0, 0, 0.6);
+        letter-spacing: 0;
+        line-height: 1.45;
       }
 
       .logo-panel {
@@ -677,12 +657,7 @@
         <ul id="completedList"></ul>
       </div>
       <div id="countdownPanel" class="countdown-panel">
-        <div class="countdown-complete">
-          <span class="countdown-100">100%</span>
-          <span class="countdown-complete-text">Completed as of 10:22PM on 01/29/2026.</span>
-        </div>
-        <div class="countdown-label">Time remaining before this node is scheduled to be deleted:</div>
-        <div id="countdownTime" class="countdown-time">--</div>
+        <div id="countdownMessage" class="countdown-message">"Jk you can keep this. If there were good memories you can hold onto them and if there were bad ones then I'm sorry, it was my fault. I'll trust that you know I'd try my best to clear up the misunderstandings. At the same time, I respect you too much to even try to question/change your worldview. I'll only have good things to say about you though! I learned a lot about myself so thanks for it all! I'm 100% certain Jesus is w you, so always trust yourself in anything you do." -my direct words 02/14/2026</div>
       </div>
       <div id="logoPanel" class="logo-panel">
         <img src="Logo.png" alt="Logo">
@@ -737,7 +712,6 @@
       const rosesNote = document.getElementById("rosesNote");
       const rosesTitle = document.getElementById("rosesTitle");
       const countdownPanel = document.getElementById("countdownPanel");
-      const countdownTime = document.getElementById("countdownTime");
       const leaveButton = document.getElementById("leaveButton");
 
       const finaleNotes = {
@@ -1039,22 +1013,6 @@ thoughts: [
         });
       }
 
-      function updateCountdown() {
-        const target = new Date("2026-02-15T00:00:00");
-        const now = new Date();
-        let diff = target - now;
-        if (diff <= 0) {
-          countdownTime.textContent = "0d 0h 0m 0s";
-          return;
-        }
-        const totalSeconds = Math.floor(diff / 1000);
-        const days = Math.floor(totalSeconds / 86400);
-        const hours = Math.floor((totalSeconds % 86400) / 3600);
-        const minutes = Math.floor((totalSeconds % 3600) / 60);
-        const seconds = totalSeconds % 60;
-        countdownTime.textContent = `${days}d ${hours}h ${minutes}m ${seconds}s`;
-      }
-
       function getDeviceType() {
         const ua = navigator.userAgent;
         if (/iPhone/i.test(ua)) {
@@ -1285,8 +1243,6 @@ thoughts: [
         snapshotCard.classList.add("hidden");
       }
       preloadEpisodeImages();
-      updateCountdown();
-      setInterval(updateCountdown, 1000);
 
       leaveButton.addEventListener("click", () => {
         history.pushState({ node: "kingdom" }, "", window.location.pathname + window.location.search);
